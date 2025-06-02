@@ -29,17 +29,26 @@ export const Breadcrumbs = () => {
   return (
     <>
       <h2>Breadcrumbs</h2>
-      <p>Edge Server Location: {data.edgeServerLocation}</p>
-      <p>Cache Server Location: {data.cacheServerLocation}</p>
+      <ol>
+        {data.servers.map((server, idx) => (
+          <li key={idx}>
+            {server.type} | {server.location}
+          </li>
+        ))}
+      </ol>
       <p>Raw: {data.raw}</p>
     </>
   );
 };
 
 interface BreadcrumbsData {
-  edgeServerLocation: string;
-  cacheServerLocation: string;
+  servers: ServerInfo[];
   raw: string;
+}
+
+interface ServerInfo {
+  type: string;
+  location: string;
 }
 
 // https://techdocs.akamai.com/property-mgr/docs/breadcrumbs-amd
@@ -51,18 +60,50 @@ const parseBreadcrumbs = (
     return null;
   }
 
-  const [edge, cache, origin] = breadcrumbs.match(/\[[^\[\]]*\]/g); // Match brackets like [a=...,b=...]
-  const {
-    groups: { edgeServerLocation },
-  } = /n=(?<edgeServerLocation>[^,\]]+)/.exec(edge);
+  const servers = [];
 
-  const {
-    groups: { cacheServerLocation },
-  } = /n=(?<cacheServerLocation>[^,\]]+)/.exec(cache);
+  // Match brackets like [a=...,b=...]
+  for (const component of breadcrumbs.match(/\[[^\[\]]*\]/g)) {
+    const componentLetter = /c=([^,\]]+)/.exec(component)?.[1];
+    switch (componentLetter) {
+      case "g": {
+        // edge server
+        const ip = /a=([^,\]]+)/.exec(component)?.[1] ?? "";
+        servers.push({
+          type: `Edge ${ip}`,
+          location: /n=([^,\]]+)/.exec(component)?.[1] || "unknown",
+        });
+        break;
+      }
+      case "p": {
+        // peer edge server
+        servers.push({
+          type: "Edge Peer",
+          location: /n=([^,\]]+)/.exec(component)?.[1] || "unknown",
+        });
+        break;
+      }
+      case "c": {
+        // cache server
+        servers.push({
+          type: "Cache",
+          location: /n=([^,\]]+)/.exec(component)?.[1] || "unknown",
+        });
+        break;
+      }
+      case "o": {
+        // origin server
+        servers.push({
+          type: "Origin",
+          location: "Azure Europe West (Schiphol, NL)",
+        });
+        break;
+      }
+    }
+  }
 
   return {
-    edgeServerLocation: edgeServerLocation || "unknown",
-    cacheServerLocation: cacheServerLocation || "unknown",
+    servers,
     raw: breadcrumbs,
   };
 };
