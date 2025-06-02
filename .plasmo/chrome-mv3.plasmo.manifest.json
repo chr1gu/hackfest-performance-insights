@@ -21,7 +21,29 @@
   "author": "Hackfest",
   "name": "DEV | Page performance insights",
   "description": "Collect Digitec Galaxus specific page performance insights",
+  "background": {
+    "service_worker": "./static/background/index.ts"
+  },
+  "devtools_page": "./devtools.html",
+  "permissions": [
+    "webRequest",
+    "declarativeNetRequest",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.galaxus.ch/*",
+        "https://test-www.galaxus.ch/*"
+      ],
+      "js": [
+        "../content.ts"
+      ]
+    }
+  ],
   "host_permissions": [
-    "https://*/*"
+    "https://*/*",
+    "https://test-www.galaxus.ch/*",
+    "https://www.galaxus.ch/*"
   ]
 }

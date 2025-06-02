@@ -25,7 +25,14 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://*/*"
+      "https://*/*",
+      "https://test-www.galaxus.ch/*",
+      "https://www.galaxus.ch/*"
+    ],
+    "permissions": [
+      "webRequest",
+      "declarativeNetRequest",
+      "storage"
     ]
   }
 }
