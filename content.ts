@@ -33,22 +33,22 @@ export const config: PlasmoCSConfig = {
 
 // observer.observe({ type: "resource", buffered: true });
 
-const messageHandler = (
-  request: any,
-  sender: chrome.runtime.MessageSender,
-  sendResponse: (response?: any) => void
-) => {
-  console.log(
-    sender.tab
-      ? "from a content script:" + sender.tab.url
-      : "from the extension"
-  );
-  if (request.greeting === "hello") sendResponse({ farewell: "goodbye" });
-};
+// const messageHandler = (
+//   request: any,
+//   sender: chrome.runtime.MessageSender,
+//   sendResponse: (response?: any) => void
+// ) => {
+//   console.log(
+//     sender.tab
+//       ? "from a content script:" + sender.tab.url
+//       : "from the extension"
+//   );
+//   if (request.greeting === "hello") sendResponse({ farewell: "goodbye" });
+// };
 
-chrome.runtime.onMessage.addListener(messageHandler);
+// chrome.runtime.onMessage.addListener(messageHandler);
 
-// Cleanup
-chrome.runtime.connect().onDisconnect.addListener(function () {
-  chrome.runtime.onMessage.removeListener(messageHandler);
-});
+// // Cleanup
+// chrome.runtime.connect().onDisconnect.addListener(function () {
+//   chrome.runtime.onMessage.removeListener(messageHandler);
+// });
