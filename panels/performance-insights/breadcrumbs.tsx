@@ -29,6 +29,7 @@ export const Breadcrumbs = () => {
   return (
     <>
       <h2>Breadcrumbs</h2>
+      <pre>{data.raw}</pre>
       <ol>
         {data.servers.map((server, idx) => (
           <li key={idx}>
@@ -36,7 +37,6 @@ export const Breadcrumbs = () => {
           </li>
         ))}
       </ol>
-      <p>Raw: {data.raw}</p>
     </>
   );
 };
