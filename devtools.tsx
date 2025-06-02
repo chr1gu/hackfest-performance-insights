@@ -1,11 +1,11 @@
-import fontPickerHTML from "url:./panels/font-picker/index.html";
+import performanceInsightsHTML from "url:./panels/performance-insights/index.html";
 import fontPropertiesHTML from "url:./panels/font-properties/index.html";
 
 chrome.devtools.panels.create(
-  "Font Picker",
+  "DG Performance Insights",
   null,
   // See: https://github.com/PlasmoHQ/plasmo/issues/106#issuecomment-1188539625
-  fontPickerHTML.split("/").pop()
+  performanceInsightsHTML.split("/").pop()
 );
 
 chrome.devtools.panels.elements.createSidebarPane(

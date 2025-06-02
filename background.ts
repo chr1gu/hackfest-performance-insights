@@ -127,13 +127,46 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
 // );
 
 chrome.webRequest.onCompleted.addListener(
-  (details) => {
+  async (details) => {
+    if (details.type !== "main_frame") {
+      return; // Only process main frame requests for testing...
+    }
+
+    console.log(details.url, details);
     const breadcrumbs = details.responseHeaders?.find(
       (header) => header.name.toLowerCase() === "akamai-request-bc"
     )?.value;
 
+    const edgeDuration = details.responseHeaders
+      ?.find(
+        (header) =>
+          header.name.toLowerCase() === "server-timing" &&
+          header.value.startsWith("edge")
+      )
+      ?.value.replace("edge; dur=", "");
+
+    const originDuration = details.responseHeaders
+      ?.find(
+        (header) =>
+          header.name.toLowerCase() === "server-timing" &&
+          header.value.startsWith("origin")
+      )
+      ?.value.replace("origin; dur=", "");
+
     if (breadcrumbs) {
       console.log(`Breadcrumbs for ${details.url}:`, breadcrumbs);
+      chrome.storage.local.set({ breadcrumbs: breadcrumbs });
+    }
+
+    console.log(
+      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`
+    );
+
+    if (edgeDuration && originDuration) {
+      chrome.storage.local.set({
+        edgeDuration: edgeDuration,
+        originDuration: originDuration,
+      });
     }
   },
   { urls: ["https://www.galaxus.ch/*"] },

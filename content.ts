@@ -38,7 +38,12 @@ const messageHandler = (
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void
 ) => {
-  alert(`Message received: ${request.message}`);
+  console.log(
+    sender.tab
+      ? "from a content script:" + sender.tab.url
+      : "from the extension"
+  );
+  if (request.greeting === "hello") sendResponse({ farewell: "goodbye" });
 };
 
 chrome.runtime.onMessage.addListener(messageHandler);
