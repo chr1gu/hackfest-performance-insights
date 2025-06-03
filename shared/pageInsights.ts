@@ -1,7 +1,6 @@
 import { Storage } from "@plasmohq/storage";
 
 export interface PageInsights {
-  totalDuration: number;
   requests: PageInsightRequest[];
 }
 
@@ -9,12 +8,25 @@ export interface PageInsightRequest {
   name: string;
   requestId: string;
   completed: boolean;
+  response?: PageInsightResponse;
+}
+
+export interface PageInsightResponse {
+  totalDuration: number;
+  akamaiInfo: AkamaiInfo;
   hosts: HostSystem[];
+}
+
+export interface AkamaiInfo {
+  edgeDuration: number;
+  edgeLocation: string;
+  originDuration: number;
 }
 
 export interface HostSystem {
   name: string;
-  totalDuration: number | null;
+  duration: number | null;
+  children?: HostSystem[];
 }
 
 export interface AkamaiHostSystem extends HostSystem {}
@@ -36,7 +48,6 @@ export function getPageInsights(
     } else {
       // If no insights are found, return an empty structure
       callback({
-        totalDuration: 0,
         requests: [],
       });
     }

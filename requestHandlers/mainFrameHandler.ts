@@ -3,21 +3,20 @@ import {
   updatePageInsights,
   type PageInsightRequest,
 } from "~shared/pageInsights";
-import type { RequestHandler, WebRequestDetails } from "./requestHandler";
+import { getAkamaiInfo, type RequestHandler } from "./requestHandler";
 
 export class MainFrameHandler implements RequestHandler {
-  canHandleRequest(request: WebRequestDetails): boolean {
+  canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {
     return request.type === "main_frame";
   }
 
-  onBeforeSendHeaders(request: WebRequestDetails): void {
+  onBeforeSendHeaders(request: chrome.webRequest.WebRequestDetails): void {
     getPageInsights((pageInsights) => {
       // Update the page insights with the GraphQL request
       const requestInfo: PageInsightRequest = {
         name: "Main Frame Request",
         requestId: request.requestId,
         completed: false,
-        hosts: [],
       };
 
       pageInsights.requests = []; // Reset requests on reload
@@ -26,7 +25,7 @@ export class MainFrameHandler implements RequestHandler {
     });
   }
 
-  onCompleted(request: WebRequestDetails): void {
+  onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
     // Logic to execute after handling the request
 
     getPageInsights((pageInsights) => {
@@ -36,7 +35,14 @@ export class MainFrameHandler implements RequestHandler {
       );
 
       if (requestInfo) {
+        const akamaiInfo = getAkamaiInfo(request);
+
         requestInfo.completed = true;
+        requestInfo.response = {
+          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+          akamaiInfo: getAkamaiInfo(request),
+          hosts: [], // This can be populated with more detailed host information if needed
+        };
         updatePageInsights(pageInsights);
       }
     });

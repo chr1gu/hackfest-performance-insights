@@ -3,24 +3,28 @@ import {
   updatePageInsights,
   type PageInsightRequest,
 } from "~shared/pageInsights";
-import type { RequestHandler, WebRequestDetails } from "./requestHandler";
+import {
+  getAkamaiInfo,
+  getEdgeDuration,
+  getOriginDuration,
+  type RequestHandler,
+} from "./requestHandler";
 
 export class GraphQLHandler implements RequestHandler {
-  canHandleRequest(request: WebRequestDetails): boolean {
+  canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {
     return (
       request.type === "xmlhttprequest" &&
-      request.url.includes("/graphql/") &&
+      request.url.includes("/graphql/o/") &&
       request.method === "POST"
     );
   }
 
-  onBeforeSendHeaders(request: WebRequestDetails): void {
+  onBeforeSendHeaders(request: chrome.webRequest.WebRequestDetails): void {
     getPageInsights((pageInsights) => {
       const requestInfo: PageInsightRequest = {
         name: request.url.split("/").pop() || "GraphQL Request",
         requestId: request.requestId,
         completed: false,
-        hosts: [],
       };
 
       pageInsights.requests.push(requestInfo);
@@ -28,17 +32,21 @@ export class GraphQLHandler implements RequestHandler {
     });
   }
 
-  onCompleted(request: WebRequestDetails): void {
-    // Logic to execute after handling the request
-
+  onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
     getPageInsights((pageInsights) => {
-      // Find the request in the page insights and mark it as completed
       const requestInfo = pageInsights.requests.find(
         (req) => req.requestId === request.requestId
       );
 
       if (requestInfo) {
+        const akamaiInfo = getAkamaiInfo(request);
+
         requestInfo.completed = true;
+        requestInfo.response = {
+          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+          akamaiInfo,
+          hosts: [], // This can be populated with more detailed host information if needed
+        };
         updatePageInsights(pageInsights);
       }
     });
