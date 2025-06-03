@@ -1,4 +1,4 @@
-export function getOriginDuration(
+function getOriginDuration(
   request: chrome.webRequest.WebResponseHeadersDetails
 ): number {
   const originDuration = request.responseHeaders
@@ -12,7 +12,7 @@ export function getOriginDuration(
   return parseInt(originDuration || "0");
 }
 
-export function getEdgeDuration(
+function getEdgeDuration(
   request: chrome.webRequest.WebResponseHeadersDetails
 ): number {
   const edgeDuration = request.responseHeaders
@@ -24,6 +24,18 @@ export function getEdgeDuration(
     ?.value?.replace("edge; dur=", "");
 
   return parseInt(edgeDuration || "0");
+}
+
+export function getAkamaiInfo(
+  request: chrome.webRequest.WebResponseHeadersDetails
+) {
+  const edgeDuration = getEdgeDuration(request);
+  const originDuration = getOriginDuration(request);
+  return {
+    edgeDuration: edgeDuration,
+    edgeLocation: "Unknown",
+    originDuration: originDuration,
+  };
 }
 
 export interface RequestHandler {

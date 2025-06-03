@@ -3,11 +3,7 @@ import {
   updatePageInsights,
   type PageInsightRequest,
 } from "~shared/pageInsights";
-import {
-  getEdgeDuration,
-  getOriginDuration,
-  type RequestHandler,
-} from "./requestHandler";
+import { getAkamaiInfo, type RequestHandler } from "./requestHandler";
 
 export class MainFrameHandler implements RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {
@@ -39,17 +35,12 @@ export class MainFrameHandler implements RequestHandler {
       );
 
       if (requestInfo) {
-        const edgeDuration = getEdgeDuration(request);
-        const originDuration = getOriginDuration(request);
+        const akamaiInfo = getAkamaiInfo(request);
 
         requestInfo.completed = true;
         requestInfo.response = {
-          totalDuration: edgeDuration + originDuration,
-          akamaiInfo: {
-            edgeDuration: edgeDuration,
-            edgeLocation: "Unknown",
-            originDuration: originDuration,
-          },
+          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+          akamaiInfo: getAkamaiInfo(request),
           hosts: [], // This can be populated with more detailed host information if needed
         };
         updatePageInsights(pageInsights);

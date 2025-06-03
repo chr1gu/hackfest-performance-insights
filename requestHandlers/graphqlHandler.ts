@@ -4,6 +4,7 @@ import {
   type PageInsightRequest,
 } from "~shared/pageInsights";
 import {
+  getAkamaiInfo,
   getEdgeDuration,
   getOriginDuration,
   type RequestHandler,
@@ -38,17 +39,12 @@ export class GraphQLHandler implements RequestHandler {
       );
 
       if (requestInfo) {
-        const edgeDuration = getEdgeDuration(request);
-        const originDuration = getOriginDuration(request);
+        const akamaiInfo = getAkamaiInfo(request);
 
         requestInfo.completed = true;
         requestInfo.response = {
-          totalDuration: edgeDuration + originDuration,
-          akamaiInfo: {
-            edgeDuration: edgeDuration,
-            edgeLocation: "Unknown",
-            originDuration: originDuration,
-          },
+          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+          akamaiInfo,
           hosts: [], // This can be populated with more detailed host information if needed
         };
         updatePageInsights(pageInsights);
