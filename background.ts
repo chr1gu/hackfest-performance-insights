@@ -1,5 +1,7 @@
 import type { PlasmoCSConfig } from "plasmo";
 import { tracingKey } from "./shared/constants";
+import type { RequestHandler } from "~requestHandlers/requestHandler";
+import { GraphQLHandler } from "~requestHandlers/graphqlHandler";
 
 export const config: PlasmoCSConfig = {
   matches: [
@@ -34,7 +36,8 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
   for (let [key, { newValue }] of Object.entries(changes)) {
     console.log(
       `Storage key "${key}" in namespace "${namespace}" changed.`,
-      `New value is "${newValue}".`,
+      `New value is ".`,
+      newValue
     );
 
     if (key === tracingKey) {
@@ -68,22 +71,24 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
   }
 });
 
+const requestHandlers: RequestHandler[] = [new GraphQLHandler()];
+
 chrome.webRequest.onCompleted.addListener(
   async (details) => {
+    console.log("completed: " + details.url, details);
     if (details.type !== "main_frame") {
       return; // Only process main frame requests for testing...
     }
 
-    console.log(details.url, details);
     const breadcrumbs = details.responseHeaders?.find(
-      (header) => header.name.toLowerCase() === "akamai-request-bc",
+      (header) => header.name.toLowerCase() === "akamai-request-bc"
     )?.value;
 
     const edgeDuration = details.responseHeaders
       ?.find(
         (header) =>
           header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("edge"),
+          header.value?.startsWith("edge")
       )
       ?.value?.replace("edge; dur=", "");
 
@@ -91,7 +96,7 @@ chrome.webRequest.onCompleted.addListener(
       ?.find(
         (header) =>
           header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("origin"),
+          header.value?.startsWith("origin")
       )
       ?.value?.replace("origin; dur=", "");
 
@@ -101,7 +106,7 @@ chrome.webRequest.onCompleted.addListener(
     }
 
     console.log(
-      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`,
+      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`
     );
 
     if (edgeDuration && originDuration) {
@@ -112,5 +117,16 @@ chrome.webRequest.onCompleted.addListener(
     }
   },
   { urls: ["https://www.galaxus.ch/*"] },
-  ["responseHeaders"],
+  ["responseHeaders"]
+);
+
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  (details) => {
+    for (const handler of requestHandlers) {
+      if (handler.canHandleRequest(details)) {
+        handler.preHandleRequest(details);
+      }
+    }
+  },
+  { urls: ["https://www.galaxus.ch/*"] }
 );
