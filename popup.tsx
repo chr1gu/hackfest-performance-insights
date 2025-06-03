@@ -1,21 +1,12 @@
 import { useEffect, useState } from "react";
-import { tracingKey } from "./shared/constants";
+import { getTracingKey, updateTracingKey } from "~shared/storage";
 
 function IndexPopup() {
-  const [data, setData] = useState({
-    [tracingKey]: undefined,
-  });
-
-  console.log("IndexPopup initialized with data:", data[tracingKey]);
+  const [key, setKey] = useState(null);
 
   useEffect(() => {
     console.log("IndexPopup mounted");
-    chrome.storage.local.get([tracingKey]).then((result) => {
-      console.log("Initial data:", result);
-      setData({
-        [tracingKey]: result[tracingKey] ?? "",
-      });
-    });
+    getTracingKey().then(setKey);
   }, []);
 
   return (
@@ -32,9 +23,9 @@ function IndexPopup() {
         style={{ width: "300px", padding: 8 }}
         onChange={(e) => {
           console.log("Input changed:", e.target.value);
-          chrome.storage.local.set({ [tracingKey]: e.target.value });
+          updateTracingKey(e.target.value);
         }}
-        defaultValue={data[tracingKey]}
+        defaultValue={key || ""}
       />
     </div>
   );

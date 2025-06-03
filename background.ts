@@ -1,30 +1,41 @@
-import type { PlasmoCSConfig } from "plasmo";
-import { tracingKey } from "./shared/constants";
+import { tracingHeader } from "./shared/constants";
+import { getTracingKey } from "~shared/storage";
 
-export const config: PlasmoCSConfig = {
-  matches: [
-    "https://www.digitec.ch/*",
-    "https://www.galaxus.ch/*",
-    "https://www.galaxus.de/*",
-    "https://www.galaxus.fr/*",
-    "https://www.galaxus.it/*",
-    "https://www.galaxus.at/*",
-    "https://www.galaxus.be/*",
-    "https://www.galaxus.nl/*",
-    "https://www.galaxus.lu/*",
-    "https://www.galaxus.rs/*",
-    "https://test-www.digitec.ch/*",
-    "https://test-www.galaxus.ch/*",
-    "https://test-www.galaxus.de/*",
-    "https://test-www.galaxus.fr/*",
-    "https://test-www.galaxus.it/*",
-    "https://test-www.galaxus.at/*",
-    "https://test-www.galaxus.be/*",
-    "https://test-www.galaxus.nl/*",
-    "https://test-www.galaxus.lu/*",
-    "https://test-www.galaxus.rs/*",
-  ],
+const addDebugHeadersToRequests = async () => {
+  const tracingKey = await getTracingKey();
+  updateAddedDebugHeaders(tracingKey);
 };
+
+const updateAddedDebugHeaders = async (tracingKey: string) => {
+  const addRules: chrome.declarativeNetRequest.Rule[] = [];
+  if (tracingKey) {
+    addRules.push({
+      id: 1,
+      priority: 1,
+      condition: {
+        regexFilter: `https://.*\.(digitec\.ch|galaxus\.(ch|de|it|nl|at|fr))(:\d+)?(/.*)?`,
+        resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
+      },
+      action: {
+        type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+        requestHeaders: [
+          {
+            operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+            header: tracingHeader,
+            value: tracingKey,
+          },
+        ],
+      },
+    });
+  }
+
+  chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: [1],
+    addRules,
+  });
+};
+
+addDebugHeadersToRequests();
 
 /**
  * Dynamically update declarativeNetRequest rules based on storage changes because we don't want to hardcode those rules in the manifest.
@@ -37,33 +48,8 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
       `New value is "${newValue}".`,
     );
 
-    if (key === tracingKey) {
-      chrome.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: [1],
-        addRules: [
-          {
-            id: 1,
-            priority: 1,
-            condition: {
-              regexFilter:
-                "https://.*.(digitec.ch|galaxus.ch|galaxus.de|galaxus.fr|galaxus.it|galaxus.at|galaxus.be|galaxus.nl|galaxus.lu|galaxus.rs)/.*",
-              resourceTypes: [
-                chrome.declarativeNetRequest.ResourceType.MAIN_FRAME,
-              ],
-            },
-            action: {
-              type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-              requestHeaders: [
-                {
-                  operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-                  header: tracingKey,
-                  value: newValue,
-                },
-              ],
-            },
-          },
-        ],
-      });
+    if (key === tracingHeader) {
+      updateAddedDebugHeaders(newValue);
     }
   }
 });

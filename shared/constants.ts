@@ -1,1 +1,1 @@
-export const tracingKey = "X-Dg-Tracing";
+export const tracingHeader = "X-Dg-Tracing";
