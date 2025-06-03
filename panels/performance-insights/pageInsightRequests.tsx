@@ -17,7 +17,13 @@ export const PageInsightRequests = () => {
             <br />
             Request ID: {request.requestId}
             <br />
-            Hosts: {request.hosts.map((host) => host.name).join(", ")}
+            Total Duration: {request.response?.totalDuration || "N/A"} ms
+            <br />
+            Akamai Info: {request.response?.akamaiInfo.edgeDuration || "N/A"} ms
+            edge, {request.response?.akamaiInfo.originDuration || "N/A"} ms
+            origin
+            <br />
+            Hosts: {request.response?.hosts.map((host) => host.name).join(", ")}
           </li>
         ))}
       </ul>
