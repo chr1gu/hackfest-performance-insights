@@ -26,9 +26,9 @@
   },
   "devtools_page": "./devtools.html",
   "permissions": [
+    "storage",
     "webRequest",
-    "declarativeNetRequest",
-    "storage"
+    "declarativeNetRequest"
   ],
   "content_scripts": [
     {
@@ -37,7 +37,7 @@
         "https://test-www.galaxus.ch/*"
       ],
       "js": [
-        "../content.ts"
+        "..\\content.ts"
       ]
     }
   ],
