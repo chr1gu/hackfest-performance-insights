@@ -1,4 +1,8 @@
-import { tracingHeader } from "./shared/constants";
+import {
+  pragmaHeader,
+  pragmaHeaderValues,
+  tracingHeader,
+} from "./shared/constants";
 import { getTracingKey } from "~shared/storage";
 
 const addDebugHeadersToRequests = async () => {
@@ -14,7 +18,10 @@ const updateAddedDebugHeaders = async (tracingKey: string) => {
       priority: 1,
       condition: {
         regexFilter: `https://.*\.(digitec\.ch|galaxus\.(ch|de|it|nl|at|fr))(:\d+)?(/.*)?`,
-        resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
+        resourceTypes: [
+          chrome.declarativeNetRequest.ResourceType.MAIN_FRAME,
+          chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
+        ],
       },
       action: {
         type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
@@ -23,6 +30,11 @@ const updateAddedDebugHeaders = async (tracingKey: string) => {
             operation: chrome.declarativeNetRequest.HeaderOperation.SET,
             header: tracingHeader,
             value: tracingKey,
+          },
+          {
+            operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+            header: pragmaHeader,
+            value: pragmaHeaderValues.join(", "),
           },
         ],
       },
