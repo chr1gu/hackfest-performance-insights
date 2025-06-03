@@ -42,6 +42,6 @@ export type ResourceType =
 
 export interface RequestHandler {
   canHandleRequest(request: WebRequestDetails): boolean;
-  preHandleRequest(request: WebRequestDetails): void;
-  postHandleRequest(request: WebRequestDetails): void;
+  onBeforeSendHeaders(request: WebRequestDetails): void;
+  onCompleted(request: WebRequestDetails): void;
 }

@@ -2,6 +2,7 @@ import type { PlasmoCSConfig } from "plasmo";
 import { tracingKey } from "./shared/constants";
 import type { RequestHandler } from "~requestHandlers/requestHandler";
 import { GraphQLHandler } from "~requestHandlers/graphqlHandler";
+import { MainFrameHandler } from "~requestHandlers/mainFrameHandler";
 
 export const config: PlasmoCSConfig = {
   matches: [
@@ -34,11 +35,11 @@ export const config: PlasmoCSConfig = {
  */
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
   for (let [key, { newValue }] of Object.entries(changes)) {
-    console.log(
-      `Storage key "${key}" in namespace "${namespace}" changed.`,
-      `New value is ".`,
-      newValue
-    );
+    // console.log(
+    //   `Storage key "${key}" in namespace "${namespace}" changed.`,
+    //   `New value is ".`,
+    //   newValue
+    // );
 
     if (key === tracingKey) {
       chrome.declarativeNetRequest.updateDynamicRules({
@@ -71,10 +72,19 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
   }
 });
 
-const requestHandlers: RequestHandler[] = [new GraphQLHandler()];
+const requestHandlers: RequestHandler[] = [
+  new MainFrameHandler(),
+  new GraphQLHandler(),
+];
 
 chrome.webRequest.onCompleted.addListener(
   async (details) => {
+    for (const handler of requestHandlers) {
+      if (handler.canHandleRequest(details)) {
+        handler.onCompleted(details);
+      }
+    }
+
     console.log("completed: " + details.url, details);
     if (details.type !== "main_frame") {
       return; // Only process main frame requests for testing...
@@ -124,7 +134,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   (details) => {
     for (const handler of requestHandlers) {
       if (handler.canHandleRequest(details)) {
-        handler.preHandleRequest(details);
+        handler.onBeforeSendHeaders(details);
       }
     }
   },

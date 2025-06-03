@@ -5,24 +5,22 @@ import {
 } from "~shared/pageInsights";
 import type { RequestHandler, WebRequestDetails } from "./requestHandler";
 
-export class GraphQLHandler implements RequestHandler {
+export class MainFrameHandler implements RequestHandler {
   canHandleRequest(request: WebRequestDetails): boolean {
-    return (
-      request.type === "xmlhttprequest" &&
-      request.url.includes("/graphql/") &&
-      request.method === "POST"
-    );
+    return request.type === "main_frame";
   }
 
   onBeforeSendHeaders(request: WebRequestDetails): void {
     getPageInsights((pageInsights) => {
+      // Update the page insights with the GraphQL request
       const requestInfo: PageInsightRequest = {
-        name: request.url.split("/").pop() || "GraphQL Request",
+        name: "Main Frame Request",
         requestId: request.requestId,
         completed: false,
         hosts: [],
       };
 
+      pageInsights.requests = []; // Reset requests on reload
       pageInsights.requests.push(requestInfo);
       updatePageInsights(pageInsights);
     });
