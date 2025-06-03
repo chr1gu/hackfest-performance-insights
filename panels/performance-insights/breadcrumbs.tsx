@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export const Breadcrumbs = () => {
-  const [data, setData] = useState<BreadcrumbsData>();
+  const [data, setData] = useState<BreadcrumbsData | null>();
 
   useEffect(() => {
     // Initial value
@@ -54,7 +54,7 @@ interface ServerInfo {
 // https://techdocs.akamai.com/property-mgr/docs/breadcrumbs-amd
 // Example: [a=173.222.108.31,b=244340660,c=g,n=CH_ZH_GLATTBRUGG,o=20940],[c=c,n=NL__AMSTERDAM,o=20940],[a=211,c=o]
 const parseBreadcrumbs = (
-  breadcrumbs: string | undefined
+  breadcrumbs: string | undefined,
 ): BreadcrumbsData | null => {
   if (!breadcrumbs) {
     return null;
@@ -63,7 +63,7 @@ const parseBreadcrumbs = (
   const servers = [];
 
   // Match brackets like [a=...,b=...]
-  for (const component of breadcrumbs.match(/\[[^\[\]]*\]/g)) {
+  for (const component of breadcrumbs.match(/\[[^\[\]]*\]/g) || []) {
     const componentLetter = /c=([^,\]]+)/.exec(component)?.[1];
     switch (componentLetter) {
       case "g": {

@@ -1,4 +1,5 @@
 import type { PlasmoCSConfig } from "plasmo";
+import { tracingKey } from "./shared/constants";
 
 export const config: PlasmoCSConfig = {
   matches: [
@@ -33,10 +34,10 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
   for (let [key, { newValue }] of Object.entries(changes)) {
     console.log(
       `Storage key "${key}" in namespace "${namespace}" changed.`,
-      `New value is "${newValue}".`
+      `New value is "${newValue}".`,
     );
 
-    if (key === "DG_TestToken") {
+    if (key === tracingKey) {
       chrome.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: [1],
         addRules: [
@@ -45,7 +46,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
             priority: 1,
             condition: {
               regexFilter:
-                "https://test-www.(digitec.ch|galaxus.ch|galaxus.de|galaxus.fr|galaxus.it|galaxus.at|galaxus.be|galaxus.nl|galaxus.lu|galaxus.rs)/.*",
+                "https://.*.(digitec.ch|galaxus.ch|galaxus.de|galaxus.fr|galaxus.it|galaxus.at|galaxus.be|galaxus.nl|galaxus.lu|galaxus.rs)/.*",
               resourceTypes: [
                 chrome.declarativeNetRequest.ResourceType.MAIN_FRAME,
               ],
@@ -55,36 +56,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
               requestHeaders: [
                 {
                   operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-                  header: "X-Dg-TestToken",
-                  value: newValue,
-                },
-              ],
-            },
-          },
-        ],
-      });
-    }
-
-    if (key === "DG_Debug") {
-      chrome.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: [2],
-        addRules: [
-          {
-            id: 2,
-            priority: 2,
-            condition: {
-              regexFilter:
-                "https://(test-)?www.(digitec.ch|galaxus.ch|galaxus.de|galaxus.fr|galaxus.it|galaxus.at|galaxus.be|galaxus.nl|galaxus.lu|galaxus.rs)/.*",
-              resourceTypes: [
-                chrome.declarativeNetRequest.ResourceType.MAIN_FRAME,
-              ],
-            },
-            action: {
-              type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-              requestHeaders: [
-                {
-                  operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-                  header: "X-Dg-Debug",
+                  header: tracingKey,
                   value: newValue,
                 },
               ],
@@ -96,36 +68,6 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
   }
 });
 
-// chrome.webRequest.onHeadersReceived.addListener(
-//   (req) => {
-//     console.log(`Response to ${req.url} received:`, req.responseHeaders);
-//   },
-//   { urls: ["https://www.galaxus.ch/*", "https://test-www.galaxus.ch/*"] },
-//   ["responseHeaders", "extraHeaders"]
-// );
-
-// chrome.webRequest.onCompleted.addListener(
-//   (details) => {
-//     if (details.statusCode === 200) {
-//       const requestTime = details.responseHeaders?.find(
-//         (header) => header.name.toLowerCase() === "x-request-time"
-//       )?.value;
-
-//       if (requestTime) {
-//         console.log(`Request to ${details.url} took ${requestTime}ms`);
-//       } else {
-//         console.log(`Request to ${details.url} completed successfully.`);
-//       }
-//     } else {
-//       console.error(
-//         `Request to ${details.url} failed with status code ${details.statusCode}.`
-//       );
-//     }
-//   },
-//   { urls: ["https://www.galaxus.ch/*"] },
-//   ["responseHeaders"]
-// );
-
 chrome.webRequest.onCompleted.addListener(
   async (details) => {
     if (details.type !== "main_frame") {
@@ -134,24 +76,24 @@ chrome.webRequest.onCompleted.addListener(
 
     console.log(details.url, details);
     const breadcrumbs = details.responseHeaders?.find(
-      (header) => header.name.toLowerCase() === "akamai-request-bc"
+      (header) => header.name.toLowerCase() === "akamai-request-bc",
     )?.value;
 
     const edgeDuration = details.responseHeaders
       ?.find(
         (header) =>
           header.name.toLowerCase() === "server-timing" &&
-          header.value.startsWith("edge")
+          header.value?.startsWith("edge"),
       )
-      ?.value.replace("edge; dur=", "");
+      ?.value?.replace("edge; dur=", "");
 
     const originDuration = details.responseHeaders
       ?.find(
         (header) =>
           header.name.toLowerCase() === "server-timing" &&
-          header.value.startsWith("origin")
+          header.value?.startsWith("origin"),
       )
-      ?.value.replace("origin; dur=", "");
+      ?.value?.replace("origin; dur=", "");
 
     if (breadcrumbs) {
       console.log(`Breadcrumbs for ${details.url}:`, breadcrumbs);
@@ -159,7 +101,7 @@ chrome.webRequest.onCompleted.addListener(
     }
 
     console.log(
-      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`
+      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`,
     );
 
     if (edgeDuration && originDuration) {
@@ -170,5 +112,5 @@ chrome.webRequest.onCompleted.addListener(
     }
   },
   { urls: ["https://www.galaxus.ch/*"] },
-  ["responseHeaders"]
+  ["responseHeaders"],
 );

@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
+import { tracingKey } from "./shared/constants";
 
 function IndexPopup() {
   const [data, setData] = useState({
-    DG_TestToken: undefined,
-    DG_Debug: undefined,
+    [tracingKey]: undefined,
   });
 
+  console.log("IndexPopup initialized with data:", data[tracingKey]);
+
   useEffect(() => {
-    chrome.storage.local.get(["DG_TestToken", "DG_Debug"]).then((result) => {
+    console.log("IndexPopup mounted");
+    chrome.storage.local.get([tracingKey]).then((result) => {
+      console.log("Initial data:", result);
       setData({
-        DG_TestToken: result.DG_TestToken ?? "",
-        DG_Debug: result.DG_Debug ?? "",
+        [tracingKey]: result[tracingKey] ?? "",
       });
     });
   }, []);
@@ -21,28 +24,18 @@ function IndexPopup() {
         padding: 16,
       }}
     >
-      <h2>
-        Welcome to our{" "}
-        <a href="https://www.plasmo.com" target="_blank">
-          Plasmo
-        </a>{" "}
-        Extension!
-      </h2>
+      <h2>Performance Insights</h2>
+      <label style={{ display: "block", marginBottom: 8 }}>
+        X-Dg-Tracing Key:
+      </label>
       <input
-        onChange={(e) =>
-          chrome.storage.local.set({ DG_TestToken: e.target.value })
-        }
-        defaultValue={data.DG_TestToken}
-        placeholder="X-Dg-TestToken Key"
+        style={{ width: "300px", padding: 8 }}
+        onChange={(e) => {
+          console.log("Input changed:", e.target.value);
+          chrome.storage.local.set({ [tracingKey]: e.target.value });
+        }}
+        defaultValue={data[tracingKey]}
       />
-      <input
-        onChange={(e) => chrome.storage.local.set({ DG_Debug: e.target.value })}
-        defaultValue={data.DG_Debug}
-        placeholder="X-Dg-Debug Key"
-      />
-      <a href="https://docs.plasmo.com" target="_blank">
-        View Docs
-      </a>
     </div>
   );
 }
