@@ -19,9 +19,9 @@ export const PageInsightRequests = () => {
             <br />
             Total Duration: {request.response?.totalDuration || "N/A"} ms
             <br />
-            Akamai Info: {request.response?.akamaiInfo.edgeDuration || "N/A"} ms
-            edge, {request.response?.akamaiInfo.originDuration || "N/A"} ms
-            origin
+            Akamai Info: edge{" "}
+            {request.response?.akamaiInfo.edgeDuration || "N/A"} ms , origin{" "}
+            {request.response?.akamaiInfo.originDuration || "N/A"} ms
             <br />
             Hosts: {request.response?.hosts.map((host) => host.name).join(", ")}
           </li>

@@ -3,7 +3,11 @@ import {
   updatePageInsights,
   type PageInsightRequest,
 } from "~shared/pageInsights";
-import type { RequestHandler } from "./requestHandler";
+import {
+  getEdgeDuration,
+  getOriginDuration,
+  type RequestHandler,
+} from "./requestHandler";
 
 export class GraphQLHandler implements RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {
@@ -28,39 +32,22 @@ export class GraphQLHandler implements RequestHandler {
   }
 
   onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
-    // Logic to execute after handling the request
-
-    const edgeDuration = request.responseHeaders
-      ?.find(
-        (header) =>
-          header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("edge")
-      )
-      ?.value?.replace("edge; dur=", "");
-
-    const originDuration = request.responseHeaders
-      ?.find(
-        (header) =>
-          header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("origin")
-      )
-      ?.value?.replace("origin; dur=", "");
-
     getPageInsights((pageInsights) => {
-      // Find the request in the page insights and mark it as completed
       const requestInfo = pageInsights.requests.find(
         (req) => req.requestId === request.requestId
       );
 
       if (requestInfo) {
+        const edgeDuration = getEdgeDuration(request);
+        const originDuration = getOriginDuration(request);
+
         requestInfo.completed = true;
         requestInfo.response = {
-          totalDuration:
-            parseInt(edgeDuration || "0") + parseInt(originDuration || "0"),
+          totalDuration: edgeDuration + originDuration,
           akamaiInfo: {
-            edgeDuration: parseInt(edgeDuration || "0"),
+            edgeDuration: edgeDuration,
             edgeLocation: "Unknown",
-            originDuration: parseInt(originDuration || "0"),
+            originDuration: originDuration,
           },
           hosts: [], // This can be populated with more detailed host information if needed
         };
