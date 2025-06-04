@@ -3,6 +3,7 @@ export const PanelHeader = () => {
     <>
       <div
         style={{
+          flex: "0 0 auto",
           height: "9px",
           background:
             "linear-gradient(90deg, #c4a277 calc(1 / 6 * 100%), #ffc32d calc(1 / 6 * 100%) calc(2 / 6 * 100%), #f67858 calc(2 / 6 * 100%) calc(3 / 6 * 100%), #84d160 calc(3 / 6 * 100%) calc(4 / 6 * 100%), #b384d3 calc(4 / 6 * 100%) calc(5 / 6 * 100%), #72c7f9 calc(5 / 6 * 100%))",
@@ -10,10 +11,13 @@ export const PanelHeader = () => {
       ></div>
       <div
         style={{
+          position: "relative",
           display: "flex",
+          flex: "0 0 auto",
           alignItems: "center",
           padding: "16px 16px",
           boxShadow: "0px 0px 2px #00000029, 0px 4px 8px #00000014",
+          zIndex: 2,
         }}
       >
         <div
