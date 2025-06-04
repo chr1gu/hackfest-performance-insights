@@ -16,21 +16,25 @@ export const PerformanceInsightDetail: FunctionComponent<
     return pageInsights?.requests.find((req) => req.requestId === requestId);
   }, [requestId]);
 
+  if (!request) {
+    return null;
+  }
+
   return (
     <div
       style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        width: "100%",
-        height: "50%",
+        flex: "0 1 auto",
+        minHeight: "max(300px, 30%)",
+        maxHeight: "70%",
         backgroundColor: "#fdfdfd",
         borderTop: "1px solid rgb(221, 221, 221)",
         zIndex: 100,
+        padding: "20px 20px 40px",
       }}
     >
-      <h2>Performance Insight Detail</h2>
-      <p>Request ID: {requestId}</p>
+      <h2 style={{ marginTop: 0 }}>Performance Insight Detail</h2>
+      <p>Request ID: {request.requestId}</p>
+      <p>Request Name: {request.name}</p>
     </div>
   );
 };

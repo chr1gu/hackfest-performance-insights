@@ -7,6 +7,8 @@ import type { PageInsights } from "~shared/pageInsights";
 import { InfrastructureTag } from "./InfrastructureTag";
 import { InfrastructureTags } from "./InfrastructureTags";
 import { RequestTag } from "./RequestTag";
+import { useState, useMemo } from "react";
+import PageInsightSearchField from "./PageInsightSearchField";
 
 const thStyles: CSSProperties = {
   textAlign: "left",
@@ -29,23 +31,35 @@ type PerformanceInsightsTableProps = {
 export const PerformanceInsightsTable: FunctionComponent<
   PerformanceInsightsTableProps
 > = ({ requestId, onRowSelection }) => {
+  const [searchTerm, setSearchTerm] = useState("");
   const [pageInsights] = useStorage<PageInsights>("pageInsights");
 
-  const insights = pageInsights
+  const requests = useMemo(() => {
+    return pageInsights?.requests.filter((request) => {
+      return request.name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+  }, [pageInsights, searchTerm]);
+
+  const insights = requests
     ? [
-        ...pageInsights.requests,
-        ...pageInsights.requests,
-        ...pageInsights.requests,
-        ...pageInsights.requests,
-        ...pageInsights.requests,
-        ...pageInsights.requests,
-        ...pageInsights.requests,
+        ...requests,
+        ...requests,
+        ...requests,
+        ...requests,
+        ...requests,
+        ...requests,
+        ...requests,
       ]
     : [];
 
   return (
     <>
-      <div style={{ height: "50px", flex: "0 0 auto" }}>Filter Here</div>
+      <div style={{ height: "50px", flex: "0 0 auto" }}>
+        <PageInsightSearchField
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+      </div>
       <div
         style={{
           padding: "20px 20px",
@@ -82,6 +96,7 @@ export const PerformanceInsightsTable: FunctionComponent<
                   borderBottom: "1px solid rgb(221, 221, 221)",
                   backgroundColor:
                     requestId === request.requestId ? "#f5f5f5" : "transparent",
+                  cursor: "pointer",
                 }}
                 onClick={() =>
                   onRowSelection ? onRowSelection(request.requestId) : undefined
@@ -91,7 +106,7 @@ export const PerformanceInsightsTable: FunctionComponent<
                   style={{ ...tdStyles, padding: "12px 12px 12px 0" }}
                   width="1px"
                 >
-                  <RequestTag tag="Document" />
+                  <RequestTag tag={request.type} />
                 </td>
                 <td style={tdStyles} width="auto">
                   {request.name}

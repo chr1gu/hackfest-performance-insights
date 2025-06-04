@@ -1,11 +1,12 @@
 import type { FunctionComponent } from "~node_modules/@types/react";
+import type { RequestType } from "~shared/pageInsights";
 
 type RequestTagProps = {
-  tag: "Document" | "GraphQL";
+  tag: RequestType;
 };
 
 const colorMap: Record<
-  RequestTagProps["tag"],
+  RequestType,
   { borderColor: string; color: string; backgroundColor: string }
 > = {
   Document: {

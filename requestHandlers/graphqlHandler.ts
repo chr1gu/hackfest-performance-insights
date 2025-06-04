@@ -101,6 +101,7 @@ export class GraphQLHandler implements RequestHandler {
     getPageInsights((pageInsights) => {
       const requestInfo: PageInsightRequest = {
         name: request.url.split("/").pop() || "GraphQL Request",
+        type: "GraphQL",
         requestId: request.requestId,
         completed: false,
       };
@@ -120,11 +121,14 @@ export class GraphQLHandler implements RequestHandler {
         const akamaiInfo = getAkamaiInfo(request);
 
         requestInfo.completed = true;
-        requestInfo.response = {
-          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-          akamaiInfo,
-          hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
-        };
+        // This if statement is simply here as a lazy way to fix ts error
+        if (requestInfo.completed) {
+          requestInfo.response = {
+            totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+            akamaiInfo,
+            hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
+          };
+        }
         updatePageInsights(pageInsights);
       }
     });
