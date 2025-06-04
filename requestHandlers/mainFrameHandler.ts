@@ -1,10 +1,7 @@
-import {
-  getPageInsights,
-  updatePageInsights,
-  type PageInsightRequest,
-} from "~shared/pageInsights";
+import { type PageInsightRequest } from "~shared/pageInsights";
 import { getAkamaiInfo, type RequestHandler } from "./requestHandler";
 import { getGraphQlGatewaySystems } from "./graphqlHandler";
+import { getPageInsights, updatePageInsights } from "~shared/storage";
 
 export class MainFrameHandler implements RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {

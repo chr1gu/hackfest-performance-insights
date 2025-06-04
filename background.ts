@@ -70,12 +70,6 @@ chrome.runtime.onConnect.addListener(function (port) {
  */
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
   for (let [key, { newValue }] of Object.entries(changes)) {
-    // console.log(
-    //   `Storage key "${key}" in namespace "${namespace}" changed.`,
-    //   `New value is ".`,
-    //   newValue
-    // );
-
     if (key === tracingHeaderKey) {
       updateAddedDebugHeaders(newValue);
     }

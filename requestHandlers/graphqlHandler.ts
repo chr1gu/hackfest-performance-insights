@@ -1,8 +1,6 @@
 import {
-  getPageInsights,
   GraphQlGatewayHostSystem,
   SubGraphQuery,
-  updatePageInsights,
   type PageInsightRequest,
 } from "~shared/pageInsights";
 import {
@@ -10,6 +8,7 @@ import {
   getAkamaiInfo,
   type RequestHandler,
 } from "./requestHandler";
+import { getPageInsights, updatePageInsights } from "~shared/storage";
 
 // Server-Timing: dg-trace-gql-subgraphq_dg-shopproductcatalog;desc="layout_query";dur=223;offset=1
 // Server-Timing: dg-trace-gql-subgraphq_dg-shopproductcatalog;desc="layout_query";dur=18;offset=225
