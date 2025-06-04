@@ -44,7 +44,7 @@ function getSubGraphTimings(
           ?.replace("dur=", "") || "0"
       );
 
-      const subgraphHost = new GraphQlGatewayHostSystem();
+      const subgraphHost = new SubGraphQuery();
       subgraphHost.duration = subgraphDuration;
       subgraphHost.queryName = subgraphQueryName;
       subgraphHost.offset = subgraphOffset;
@@ -91,6 +91,7 @@ export function getGraphQlGatewaySystems(
       hostSystems.push(gatewayHost);
     });
 
+  console.log("GraphQL Gateway Systems:", hostSystems);
   return hostSystems;
 }
 

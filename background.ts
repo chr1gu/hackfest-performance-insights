@@ -89,6 +89,11 @@ chrome.webRequest.onCompleted.addListener(
         handler.onCompleted(details);
       }
     }
+
+    console.log(
+      `Request completed: ${details.url} with status code ${details.statusCode}`,
+      details
+    );
   },
   { urls: ["https://www.galaxus.ch/*"] },
   ["responseHeaders"]
