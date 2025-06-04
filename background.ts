@@ -1,7 +1,7 @@
 import {
   pragmaHeader,
   pragmaHeaderValues,
-  tracingHeader,
+  tracingHeaderKey,
 } from "./shared/constants";
 import { getTracingKey } from "~shared/storage";
 import type { RequestHandler } from "~requestHandlers/requestHandler";
@@ -31,7 +31,7 @@ const updateAddedDebugHeaders = async (tracingKey: string | null) => {
         requestHeaders: [
           {
             operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-            header: tracingHeader,
+            header: tracingHeaderKey,
             value: tracingKey,
           },
           {
@@ -76,7 +76,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
     //   newValue
     // );
 
-    if (key === tracingHeader) {
+    if (key === tracingHeaderKey) {
       updateAddedDebugHeaders(newValue);
     }
   }
@@ -104,36 +104,9 @@ chrome.webRequest.onCompleted.addListener(
       (header) => header.name.toLowerCase() === "akamai-request-bc"
     )?.value;
 
-    const edgeDuration = details.responseHeaders
-      ?.find(
-        (header) =>
-          header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("edge")
-      )
-      ?.value?.replace("edge; dur=", "");
-
-    const originDuration = details.responseHeaders
-      ?.find(
-        (header) =>
-          header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("origin")
-      )
-      ?.value?.replace("origin; dur=", "");
-
     if (breadcrumbs) {
       console.log(`Breadcrumbs for ${details.url}:`, breadcrumbs);
       chrome.storage.local.set({ breadcrumbs: breadcrumbs });
-    }
-
-    console.log(
-      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`
-    );
-
-    if (edgeDuration && originDuration) {
-      chrome.storage.local.set({
-        edgeDuration: edgeDuration,
-        originDuration: originDuration,
-      });
     }
   },
   { urls: ["https://www.galaxus.ch/*"] },

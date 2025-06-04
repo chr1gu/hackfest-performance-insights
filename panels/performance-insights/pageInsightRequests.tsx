@@ -4,6 +4,7 @@ import {
   type HostSystem,
   type PageInsights,
 } from "~shared/pageInsights";
+import { Storage } from "@plasmohq/storage";
 
 const GraphQlGatewayHostSystemComponent = ({
   host,
@@ -44,7 +45,12 @@ const HostSystem = (host: HostSystem) => {
 };
 
 export const PageInsightRequests = () => {
-  const [pageInsights] = useStorage<PageInsights>("pageInsights");
+  const [pageInsights] = useStorage<PageInsights>({
+    key: "pageInsights",
+    instance: new Storage({
+      area: "local",
+    }),
+  });
 
   console.log("--------Page Insights Requests:", pageInsights?.requests);
 

@@ -1,4 +1,4 @@
-export const tracingHeader = "X-Dg-Tracing";
+export const tracingHeaderKey = "X-Dg-Tracing";
 export const pragmaHeader = "Pragma";
 export const pragmaHeaderValues = [
   "dg-trace-gql-gateway",

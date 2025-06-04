@@ -41,7 +41,9 @@ export class SubGraphQuery implements HostSystem {
   duration: number | null = null;
 }
 
-const storage = new Storage();
+const storage = new Storage({
+  area: "local",
+});
 
 export function updatePageInsights(pageInsights: PageInsights) {
   storage.set("pageInsights", pageInsights);
