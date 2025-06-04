@@ -12,7 +12,8 @@ export class MainFrameHandler implements RequestHandler {
     getPageInsights((pageInsights) => {
       // Update the page insights with the GraphQL request
       const requestInfo: PageInsightRequest = {
-        name: "Main Frame Request",
+        name: "Document Request",
+        type: "Document",
         requestId: request.requestId,
         completed: false,
       };
@@ -36,11 +37,14 @@ export class MainFrameHandler implements RequestHandler {
         const akamaiInfo = getAkamaiInfo(request);
 
         requestInfo.completed = true;
-        requestInfo.response = {
-          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-          akamaiInfo,
-          hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
-        };
+        // This if statement is simply here as a lazy way to fix ts error
+        if (requestInfo.completed) {
+          requestInfo.response = {
+            totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+            akamaiInfo,
+            hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
+          };
+        }
         updatePageInsights(pageInsights);
       }
     });

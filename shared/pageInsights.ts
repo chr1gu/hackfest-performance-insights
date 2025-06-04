@@ -4,14 +4,18 @@ export interface PageInsights {
   requests: PageInsightRequest[];
 }
 
+export type RequestType = "Document" | "GraphQL";
+
 interface UncompletePageInsightRequest {
   name: string;
+  type: RequestType;
   requestId: string;
   completed: false;
 }
 
 interface CompletePageInsightRequest {
   name: string;
+  type: RequestType;
   requestId: string;
   completed: true;
   response: PageInsightResponse;

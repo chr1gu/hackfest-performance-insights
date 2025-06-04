@@ -8,10 +8,10 @@ import { useState } from "react";
 import { PerformanceInsightDetail } from "./PerformanceInsightDetail";
 
 const PerformanceInsights = () => {
-  const [selectedInsights, setSelectedInsights] = useState<string | null>(null);
+  const [requestId, setSelectedInsights] = useState<string | null>(null);
 
   const onRowSelection = (id: string) => {
-    if (id === selectedInsights) {
+    if (id === requestId) {
       setSelectedInsights(null);
     } else {
       setSelectedInsights(id);
@@ -30,12 +30,10 @@ const PerformanceInsights = () => {
     >
       <PanelHeader />
       <PerformanceInsightsTable
-        requestId={selectedInsights}
+        requestId={requestId}
         onRowSelection={onRowSelection}
       />
-      {selectedInsights ? (
-        <PerformanceInsightDetail requestId={selectedInsights} />
-      ) : null}
+      {requestId ? <PerformanceInsightDetail requestId={requestId} /> : null}
 
       {/* <Breadcrumbs />
       <ServerTimings />
