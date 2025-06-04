@@ -35,26 +35,16 @@ export const PerformanceInsightsTable: FunctionComponent<
   const [pageInsights] = useStorage<PageInsights>("pageInsights");
 
   const requests = useMemo(() => {
-    return pageInsights?.requests.filter((request) => {
-      return request.name.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    return (
+      pageInsights?.requests.filter((request) => {
+        return request.name.toLowerCase().includes(searchTerm.toLowerCase());
+      }) || []
+    );
   }, [pageInsights, searchTerm]);
-
-  const insights = requests
-    ? [
-        ...requests,
-        ...requests,
-        ...requests,
-        ...requests,
-        ...requests,
-        ...requests,
-        ...requests,
-      ]
-    : [];
 
   return (
     <>
-      <div style={{ height: "50px", flex: "0 0 auto" }}>
+      <div style={{ flex: "0 0 auto", padding: "16px 20px 8px" }}>
         <PageInsightSearchField
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
@@ -62,7 +52,7 @@ export const PerformanceInsightsTable: FunctionComponent<
       </div>
       <div
         style={{
-          padding: "20px 20px",
+          padding: "0 20px 20px",
           position: "relative",
           flex: "1 1 auto",
           overflow: "auto",
@@ -90,8 +80,9 @@ export const PerformanceInsightsTable: FunctionComponent<
             </tr>
           </thead>
           <tbody>
-            {insights.map((request) => (
+            {requests.map((request) => (
               <tr
+                key={request.requestId}
                 style={{
                   borderBottom: "1px solid rgb(221, 221, 221)",
                   backgroundColor:

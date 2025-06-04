@@ -9,16 +9,6 @@ const PageInsightSearchField: React.FC<PageInsightSearchFieldProps> = ({
   searchTerm,
   setSearchTerm,
 }) => {
-  // const [searchTerm, setSearchTerm] = useState("");
-
-  // const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-  //   const newSearchTerm = event.target.value;
-  //   setSearchTerm(newSearchTerm);
-
-  //   // const filtered = filterPageInsights(initialRequests, newSearchTerm);
-  //   // onFilteredRequestsChange(filtered);
-  // };
-
   return (
     <div>
       <input

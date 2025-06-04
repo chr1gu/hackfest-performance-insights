@@ -14,7 +14,7 @@ export const PerformanceInsightDetail: FunctionComponent<
 
   const request = useMemo(() => {
     return pageInsights?.requests.find((req) => req.requestId === requestId);
-  }, [requestId]);
+  }, [requestId, pageInsights]);
 
   if (!request) {
     return null;
