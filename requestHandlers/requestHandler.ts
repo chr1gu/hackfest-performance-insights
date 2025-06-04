@@ -1,13 +1,21 @@
+export function findServerTimingHeader(
+  request: chrome.webRequest.WebResponseHeadersDetails,
+  startingWith: string
+): string | undefined {
+  return request.responseHeaders?.find(
+    (header) =>
+      header.name.toLowerCase() === "server-timing" &&
+      header.value?.startsWith(startingWith)
+  )?.value;
+}
+
 function getOriginDuration(
   request: chrome.webRequest.WebResponseHeadersDetails
 ): number {
-  const originDuration = request.responseHeaders
-    ?.find(
-      (header) =>
-        header.name.toLowerCase() === "server-timing" &&
-        header.value?.startsWith("origin")
-    )
-    ?.value?.replace("origin; dur=", "");
+  const originDuration = findServerTimingHeader(request, "origin")?.replace(
+    "origin; dur=",
+    ""
+  );
 
   return parseInt(originDuration || "0");
 }
@@ -15,13 +23,10 @@ function getOriginDuration(
 function getEdgeDuration(
   request: chrome.webRequest.WebResponseHeadersDetails
 ): number {
-  const edgeDuration = request.responseHeaders
-    ?.find(
-      (header) =>
-        header.name.toLowerCase() === "server-timing" &&
-        header.value?.startsWith("edge")
-    )
-    ?.value?.replace("edge; dur=", "");
+  const edgeDuration = findServerTimingHeader(request, "edge")?.replace(
+    "edge; dur=",
+    ""
+  );
 
   return parseInt(edgeDuration || "0");
 }

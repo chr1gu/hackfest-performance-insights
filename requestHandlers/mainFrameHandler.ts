@@ -4,6 +4,7 @@ import {
   type PageInsightRequest,
 } from "~shared/pageInsights";
 import { getAkamaiInfo, type RequestHandler } from "./requestHandler";
+import { getGraphQlGatewaySystems } from "./graphqlHandler";
 
 export class MainFrameHandler implements RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {
@@ -40,8 +41,8 @@ export class MainFrameHandler implements RequestHandler {
         requestInfo.completed = true;
         requestInfo.response = {
           totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-          akamaiInfo: getAkamaiInfo(request),
-          hosts: [], // This can be populated with more detailed host information if needed
+          akamaiInfo,
+          hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
         };
         updatePageInsights(pageInsights);
       }
