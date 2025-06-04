@@ -22,7 +22,8 @@ function getSubGraphTimings(
     ?.filter(
       (header) =>
         header.name.toLowerCase() === "server-timing" &&
-        header.value?.trim().startsWith("dg-trace-gql-subgraph_")
+        header.value?.trim().startsWith("dg-trace-gql-subgraph_") &&
+        header.value?.includes("desc=" + queryName)
     )
     .forEach((header) => {
       const subgraphParts = header.value?.split(";") || [];
@@ -41,7 +42,7 @@ function getSubGraphTimings(
       const subgraphOffset = parseInt(
         subgraphParts
           .find((part) => part.trim().startsWith("offset="))
-          ?.replace("dur=", "") || "0"
+          ?.replace("offset=", "") || "0"
       );
 
       const subgraphHost = new SubGraphQuery();
