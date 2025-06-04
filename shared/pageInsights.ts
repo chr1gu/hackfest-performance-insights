@@ -53,6 +53,7 @@ export class GraphQlGatewayHostSystem implements HostSystem {
 export class SubGraphQuery implements HostSystem {
   name: string = "Sub Graph";
   queryName: string = "Unknown sub-query";
+  subGraphName: string = "";
   duration: number | null = null;
   offset: number | null = null;
 }
