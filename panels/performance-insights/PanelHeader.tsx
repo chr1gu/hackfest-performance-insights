@@ -46,7 +46,14 @@ export const PanelHeader = () => {
             ></path>
           </svg>
         </div>
-        <h1 style={{ fontSize: "20px", fontWeight: "bold", margin: 0 }}>
+        <h1
+          style={{
+            fontSize: "22px",
+            fontWeight: 650,
+            margin: 0,
+            letterSpacing: "0.01em",
+          }}
+        >
           DG Performance Insights
         </h1>
       </div>

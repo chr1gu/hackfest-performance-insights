@@ -24,11 +24,11 @@
   "background": {
     "service_worker": "./static/background/index.ts"
   },
-  "devtools_page": "./devtools.html",
   "options_ui": {
     "page": "./options.html",
     "open_in_tab": true
   },
+  "devtools_page": "./devtools.html",
   "permissions": [
     "storage",
     "webRequest",
@@ -41,7 +41,7 @@
         "https://test-www.galaxus.ch/*"
       ],
       "js": [
-        "..\\content.ts"
+        "../content.ts"
       ]
     }
   ],

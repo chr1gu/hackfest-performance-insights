@@ -1,9 +1,7 @@
-import { useStorage } from "@plasmohq/storage/hook";
 import type {
   CSSProperties,
   FunctionComponent,
 } from "~node_modules/@types/react";
-import type { PageInsights } from "~shared/pageInsights";
 import { InfrastructureTag } from "./InfrastructureTag";
 import { InfrastructureTags } from "./InfrastructureTags";
 import { RequestTag } from "./RequestTag";
@@ -16,6 +14,8 @@ const thStyles: CSSProperties = {
   fontSize: "14px",
   padding: "12px 0",
   borderBottom: "1px solid rgb(221, 221, 221)",
+  fontWeight: 650,
+  letterSpacing: "0.01em",
 };
 
 const tdStyles: CSSProperties = {
