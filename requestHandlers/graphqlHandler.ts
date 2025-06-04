@@ -17,12 +17,13 @@ function getSubGraphTimings(
   request: chrome.webRequest.WebResponseHeadersDetails,
   queryName: string
 ): SubGraphQuery[] {
-  const hostSystems: SubGraphQuery[] = [];
+  const subGraphQueries: SubGraphQuery[] = [];
   request.responseHeaders
     ?.filter(
       (header) =>
         header.name.toLowerCase() === "server-timing" &&
-        header.value?.startsWith("dg-trace-gql-subgraphq_")
+        header.value?.trim().startsWith("dg-trace-gql-subgraph_") &&
+        header.value?.includes("desc=" + queryName)
     )
     .forEach((header) => {
       const subgraphParts = header.value?.split(";") || [];
@@ -41,17 +42,17 @@ function getSubGraphTimings(
       const subgraphOffset = parseInt(
         subgraphParts
           .find((part) => part.trim().startsWith("offset="))
-          ?.replace("dur=", "") || "0"
+          ?.replace("offset=", "") || "0"
       );
 
-      const subgraphHost = new GraphQlGatewayHostSystem();
+      const subgraphHost = new SubGraphQuery();
       subgraphHost.duration = subgraphDuration;
       subgraphHost.queryName = subgraphQueryName;
       subgraphHost.offset = subgraphOffset;
-      hostSystems.push(subgraphHost);
+      subGraphQueries.push(subgraphHost);
     });
 
-  return hostSystems;
+  return subGraphQueries;
 }
 
 // Server-Timing: dg-trace-gql-gateway;desc="layout_query";dur=23.2
@@ -91,6 +92,7 @@ export function getGraphQlGatewaySystems(
       hostSystems.push(gatewayHost);
     });
 
+  console.log("GraphQL Gateway Systems:", hostSystems);
   return hostSystems;
 }
 
