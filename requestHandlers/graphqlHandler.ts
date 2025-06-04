@@ -18,7 +18,6 @@ function getSubGraphTimings(
   queryName: string
 ): SubGraphQuery[] {
   const subGraphQueries: SubGraphQuery[] = [];
-  console.log("hhh", queryName);
   request.responseHeaders
     ?.filter(
       (header) =>
