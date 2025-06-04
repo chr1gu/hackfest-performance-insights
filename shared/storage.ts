@@ -5,25 +5,23 @@ import { Storage } from "@plasmohq/storage";
 
 const pageInsightsKey = "pageInsights";
 
+const sessionStorage = new Storage({
+  area: "session",
+});
+
 export const usePageInsightsStorage = () => {
   const [pageInsights] = useStorage<PageInsights>({
     key: pageInsightsKey,
-    instance: new Storage({
-      area: "local",
-    }),
+    instance: sessionStorage,
   });
 
   return pageInsights;
 };
 
-const storage = new Storage({
-  area: "local",
-});
-
 export function getPageInsights(
   callback: (pageInsights: PageInsights) => void
 ) {
-  storage.get<PageInsights>(pageInsightsKey).then((pageInsights) => {
+  sessionStorage.get<PageInsights>(pageInsightsKey).then((pageInsights) => {
     if (pageInsights) {
       callback(pageInsights);
     } else {
@@ -36,9 +34,20 @@ export function getPageInsights(
 }
 
 export function updatePageInsights(pageInsights: PageInsights) {
-  storage.set(pageInsightsKey, pageInsights);
+  sessionStorage.set(pageInsightsKey, pageInsights);
 }
 
+const syncStorage = new Storage({
+  area: "session",
+});
+
 export const getTracingKey = async () => {
-  return (await storage.get<string>(tracingHeaderKey)) ?? null;
+  return (await syncStorage.get<string>(tracingHeaderKey)) ?? null;
+};
+
+export const useTracingKey = () => {
+  return useStorage<string>({
+    key: pageInsightsKey,
+    instance: sessionStorage,
+  });
 };

@@ -1,8 +1,7 @@
-import { useStorage } from "@plasmohq/storage/hook";
-import { tracingHeaderKey } from "./constants";
+import { useTracingKey } from "./storage";
 
 export const TracingKeyInput = () => {
-  const [tracingHeader, setTracingKey] = useStorage<string>(tracingHeaderKey);
+  const [tracingHeader, setTracingKey] = useTracingKey();
 
   return (
     <>
