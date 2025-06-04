@@ -38,7 +38,7 @@ export function updatePageInsights(pageInsights: PageInsights) {
 }
 
 const syncStorage = new Storage({
-  area: "session",
+  area: "sync",
 });
 
 export const getTracingKey = async () => {
@@ -47,7 +47,7 @@ export const getTracingKey = async () => {
 
 export const useTracingKey = () => {
   return useStorage<string>({
-    key: pageInsightsKey,
-    instance: sessionStorage,
+    key: tracingHeaderKey,
+    instance: syncStorage,
   });
 };
