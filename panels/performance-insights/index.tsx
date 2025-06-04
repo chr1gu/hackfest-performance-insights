@@ -6,6 +6,7 @@ import { RequestTag } from "./RequestTag";
 import { InfrastructureTag } from "./InfrastructureTag";
 import { InfrastructureTags } from "./InfrastructureTags";
 import type { CSSProperties } from "~node_modules/@types/react";
+import { PageInsightRequests } from "./pageInsightRequests";
 
 const thStyles: CSSProperties = {
   textAlign: "left",
@@ -159,6 +160,7 @@ const PerformanceInsights = () => {
 
       <Breadcrumbs />
       <ServerTimings />
+      <PageInsightRequests />
     </>
   );
 };

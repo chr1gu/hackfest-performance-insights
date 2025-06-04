@@ -1,30 +1,56 @@
-import type { PlasmoCSConfig } from "plasmo";
-import { tracingKey } from "./shared/constants";
+import {
+  pragmaHeader,
+  pragmaHeaderValues,
+  tracingHeader,
+} from "./shared/constants";
+import { getTracingKey } from "~shared/storage";
+import type { RequestHandler } from "~requestHandlers/requestHandler";
+import { GraphQLHandler } from "~requestHandlers/graphqlHandler";
+import { MainFrameHandler } from "~requestHandlers/mainFrameHandler";
 
-export const config: PlasmoCSConfig = {
-  matches: [
-    "https://www.digitec.ch/*",
-    "https://www.galaxus.ch/*",
-    "https://www.galaxus.de/*",
-    "https://www.galaxus.fr/*",
-    "https://www.galaxus.it/*",
-    "https://www.galaxus.at/*",
-    "https://www.galaxus.be/*",
-    "https://www.galaxus.nl/*",
-    "https://www.galaxus.lu/*",
-    "https://www.galaxus.rs/*",
-    "https://test-www.digitec.ch/*",
-    "https://test-www.galaxus.ch/*",
-    "https://test-www.galaxus.de/*",
-    "https://test-www.galaxus.fr/*",
-    "https://test-www.galaxus.it/*",
-    "https://test-www.galaxus.at/*",
-    "https://test-www.galaxus.be/*",
-    "https://test-www.galaxus.nl/*",
-    "https://test-www.galaxus.lu/*",
-    "https://test-www.galaxus.rs/*",
-  ],
+const addDebugHeadersToRequests = async () => {
+  const tracingKey = await getTracingKey();
+  updateAddedDebugHeaders(tracingKey);
 };
+
+const updateAddedDebugHeaders = async (tracingKey: string) => {
+  const addRules: chrome.declarativeNetRequest.Rule[] = [];
+  if (tracingKey) {
+    addRules.push({
+      id: 1,
+      priority: 1,
+      condition: {
+        regexFilter: `https://.*\.(digitec\.ch|galaxus\.(ch|de|it|nl|at|fr))(:\d+)?(/.*)?`,
+        resourceTypes: [
+          chrome.declarativeNetRequest.ResourceType.MAIN_FRAME,
+          chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
+        ],
+      },
+      action: {
+        type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+        requestHeaders: [
+          {
+            operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+            header: tracingHeader,
+            value: tracingKey,
+          },
+          {
+            operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+            header: pragmaHeader,
+            value: pragmaHeaderValues.join(", "),
+          },
+        ],
+      },
+    });
+  }
+
+  chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: [1],
+    addRules,
+  });
+};
+
+addDebugHeadersToRequests();
 
 /**
  * Dynamically update declarativeNetRequest rules based on storage changes because we don't want to hardcode those rules in the manifest.
@@ -32,58 +58,45 @@ export const config: PlasmoCSConfig = {
  */
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
   for (let [key, { newValue }] of Object.entries(changes)) {
-    console.log(
-      `Storage key "${key}" in namespace "${namespace}" changed.`,
-      `New value is "${newValue}".`,
-    );
+    // console.log(
+    //   `Storage key "${key}" in namespace "${namespace}" changed.`,
+    //   `New value is ".`,
+    //   newValue
+    // );
 
-    if (key === tracingKey) {
-      chrome.declarativeNetRequest.updateDynamicRules({
-        removeRuleIds: [1],
-        addRules: [
-          {
-            id: 1,
-            priority: 1,
-            condition: {
-              regexFilter:
-                "https://.*.(digitec.ch|galaxus.ch|galaxus.de|galaxus.fr|galaxus.it|galaxus.at|galaxus.be|galaxus.nl|galaxus.lu|galaxus.rs)/.*",
-              resourceTypes: [
-                chrome.declarativeNetRequest.ResourceType.MAIN_FRAME,
-              ],
-            },
-            action: {
-              type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
-              requestHeaders: [
-                {
-                  operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-                  header: tracingKey,
-                  value: newValue,
-                },
-              ],
-            },
-          },
-        ],
-      });
+    if (key === tracingHeader) {
+      updateAddedDebugHeaders(newValue);
     }
   }
 });
 
+const requestHandlers: RequestHandler[] = [
+  new MainFrameHandler(),
+  new GraphQLHandler(),
+];
+
 chrome.webRequest.onCompleted.addListener(
   async (details) => {
+    for (const handler of requestHandlers) {
+      if (handler.canHandleRequest(details)) {
+        handler.onCompleted(details);
+      }
+    }
+
+    console.log("completed: " + details.url, details);
     if (details.type !== "main_frame") {
       return; // Only process main frame requests for testing...
     }
 
-    console.log(details.url, details);
     const breadcrumbs = details.responseHeaders?.find(
-      (header) => header.name.toLowerCase() === "akamai-request-bc",
+      (header) => header.name.toLowerCase() === "akamai-request-bc"
     )?.value;
 
     const edgeDuration = details.responseHeaders
       ?.find(
         (header) =>
           header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("edge"),
+          header.value?.startsWith("edge")
       )
       ?.value?.replace("edge; dur=", "");
 
@@ -91,7 +104,7 @@ chrome.webRequest.onCompleted.addListener(
       ?.find(
         (header) =>
           header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("origin"),
+          header.value?.startsWith("origin")
       )
       ?.value?.replace("origin; dur=", "");
 
@@ -101,7 +114,7 @@ chrome.webRequest.onCompleted.addListener(
     }
 
     console.log(
-      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`,
+      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`
     );
 
     if (edgeDuration && originDuration) {
@@ -112,5 +125,16 @@ chrome.webRequest.onCompleted.addListener(
     }
   },
   { urls: ["https://www.galaxus.ch/*"] },
-  ["responseHeaders"],
+  ["responseHeaders"]
+);
+
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  (details) => {
+    for (const handler of requestHandlers) {
+      if (handler.canHandleRequest(details)) {
+        handler.onBeforeSendHeaders(details);
+      }
+    }
+  },
+  { urls: ["https://www.galaxus.ch/*"] }
 );

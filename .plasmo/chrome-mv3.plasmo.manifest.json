@@ -26,9 +26,9 @@
   },
   "devtools_page": "./devtools.html",
   "permissions": [
+    "storage",
     "webRequest",
-    "declarativeNetRequest",
-    "storage"
+    "declarativeNetRequest"
   ],
   "content_scripts": [
     {
@@ -42,8 +42,13 @@
     }
   ],
   "host_permissions": [
-    "https://*/*",
-    "https://test-www.galaxus.ch/*",
-    "https://www.galaxus.ch/*"
+    "https://*.digitec.ch/*",
+    "https://*.galaxus.ch/*",
+    "https://*.galaxus.de/*",
+    "https://*.galaxus.fr/*",
+    "https://*.galaxus.it/*",
+    "https://*.galaxus.at/*",
+    "https://*.galaxus.be/*",
+    "https://*.galaxus.nl/*"
   ]
 }

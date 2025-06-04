@@ -10,6 +10,7 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@plasmohq/storage": "workspace:*",
     "plasmo": "0.90.5",
     "react": "18.2.0",
     "react-dom": "18.2.0"
@@ -25,9 +26,14 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://*/*",
-      "https://test-www.galaxus.ch/*",
-      "https://www.galaxus.ch/*"
+      "https://*.digitec.ch/*",
+      "https://*.galaxus.ch/*",
+      "https://*.galaxus.de/*",
+      "https://*.galaxus.fr/*",
+      "https://*.galaxus.it/*",
+      "https://*.galaxus.at/*",
+      "https://*.galaxus.be/*",
+      "https://*.galaxus.nl/*"
     ],
     "permissions": [
       "webRequest",

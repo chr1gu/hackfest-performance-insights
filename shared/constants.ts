@@ -1,1 +1,8 @@
-export const tracingKey = "X-Dg-Tracing";
+export const tracingHeader = "X-Dg-Tracing";
+export const pragmaHeader = "Pragma";
+export const pragmaHeaderValues = [
+  "dg-trace-gql-gateway",
+  "dg-trace-gql-subgraph",
+  "dg-trace-frontend",
+  "dg-akamai-bc",
+];
