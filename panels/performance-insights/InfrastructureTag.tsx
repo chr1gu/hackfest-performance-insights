@@ -1,6 +1,7 @@
 import type { FunctionComponent } from "~node_modules/@types/react";
 
 type InfrastructureTagProps = {
+  count: number;
   tag:
     | "Akamai"
     | "Frontend"
@@ -48,7 +49,12 @@ const colorMap: Record<
 
 export const InfrastructureTag: FunctionComponent<InfrastructureTagProps> = ({
   tag,
+  count,
 }) => {
+  if (count <= 0) {
+    return null;
+  }
+
   return (
     <div
       style={{
@@ -62,7 +68,7 @@ export const InfrastructureTag: FunctionComponent<InfrastructureTagProps> = ({
         border: `1px solid ${colorMap[tag].borderColor}`,
       }}
     >
-      {tag}
+      {tag} {count > 1 ? `(${count})` : ""}
     </div>
   );
 };

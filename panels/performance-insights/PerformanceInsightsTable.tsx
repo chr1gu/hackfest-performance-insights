@@ -8,6 +8,10 @@ import { RequestTag } from "./RequestTag";
 import { useState, useMemo } from "react";
 import PageInsightSearchField from "./PageInsightSearchField";
 import { usePageInsightsStorage } from "~shared/storage";
+import type {
+  CompletePageInsightRequest,
+  GraphQlGatewayHostSystem,
+} from "~shared/pageInsights";
 
 const thStyles: CSSProperties = {
   textAlign: "left",
@@ -81,59 +85,88 @@ export const PerformanceInsightsTable: FunctionComponent<
             </tr>
           </thead>
           <tbody>
-            {requests.map((request) => (
-              <tr
-                key={request.requestId}
-                style={{
-                  borderBottom: "1px solid rgb(221, 221, 221)",
-                  backgroundColor:
-                    requestId === request.requestId ? "#f5f5f5" : "transparent",
-                  cursor: "pointer",
-                }}
-                onClick={() =>
-                  onRowSelection ? onRowSelection(request.requestId) : undefined
+            {requests.map((request) => {
+              let gatewayInvocations = 0;
+              let subgraphInvocations = 0;
+              if (request.completed) {
+                const hosts = (request as CompletePageInsightRequest).response
+                  .hosts;
+                for (const host of hosts) {
+                  if (host.name === "GraphQL Gateway") {
+                    gatewayInvocations++;
+                  }
+                  const subGraphQueries =
+                    (host as GraphQlGatewayHostSystem).subGraphQueries || [];
+                  subgraphInvocations += subGraphQueries.length;
                 }
-              >
-                <td
-                  style={{ ...tdStyles, padding: "12px 12px 12px 0" }}
-                  width="1px"
+              }
+              return (
+                <tr
+                  key={request.requestId}
+                  style={{
+                    borderBottom: "1px solid rgb(221, 221, 221)",
+                    backgroundColor:
+                      requestId === request.requestId
+                        ? "#f5f5f5"
+                        : "transparent",
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    onRowSelection
+                      ? onRowSelection(request.requestId)
+                      : undefined
+                  }
                 >
-                  <RequestTag tag={request.type} />
-                </td>
-                <td style={tdStyles} width="auto">
-                  {request.name}
-                </td>
-                {!request.completed ? (
-                  <>
-                    <td style={tdStyles} width="auto" colSpan={2}>
-                      Pending...
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td
-                      style={{
-                        ...tdStyles,
-                        textAlign: "right",
-                        paddingRight: "20px",
-                      }}
-                      width="auto"
-                    >
-                      {request.response.totalDuration}ms
-                    </td>
-                    <td style={tdStyles} width="auto">
-                      <InfrastructureTags>
-                        <InfrastructureTag tag="Akamai" />
-                        <InfrastructureTag tag="Frontend" />
-                        <InfrastructureTag tag="Gateway" />
-                        <InfrastructureTag tag="Subgraph" />
-                        <InfrastructureTag tag="Database" />
-                      </InfrastructureTags>
-                    </td>
-                  </>
-                )}
-              </tr>
-            ))}
+                  <td
+                    style={{ ...tdStyles, padding: "12px 12px 12px 0" }}
+                    width="1px"
+                  >
+                    <RequestTag tag={request.type} />
+                  </td>
+                  <td style={tdStyles} width="auto">
+                    {request.name}
+                  </td>
+                  {!request.completed ? (
+                    <>
+                      <td style={tdStyles} width="auto" colSpan={2}>
+                        Pending...
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td
+                        style={{
+                          ...tdStyles,
+                          textAlign: "right",
+                          paddingRight: "20px",
+                        }}
+                        width="auto"
+                      >
+                        {request.response.totalDuration}ms
+                      </td>
+                      <td style={tdStyles} width="auto">
+                        <InfrastructureTags>
+                          <InfrastructureTag tag="Akamai" count={1} />
+                          <InfrastructureTag
+                            tag="Frontend"
+                            count={request.type === "Document" ? 1 : 0}
+                          />
+                          <InfrastructureTag
+                            tag="Gateway"
+                            count={gatewayInvocations}
+                          />
+                          <InfrastructureTag
+                            tag="Subgraph"
+                            count={subgraphInvocations}
+                          />
+                          <InfrastructureTag tag="Database" count={0} />
+                        </InfrastructureTags>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
