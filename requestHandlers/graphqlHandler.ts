@@ -49,6 +49,10 @@ function getSubGraphTimings(
       subgraphHost.duration = subgraphDuration;
       subgraphHost.queryName = subgraphQueryName;
       subgraphHost.offset = subgraphOffset;
+      subgraphHost.subGraphName = subgraphParts[0].replace(
+        "dg-trace-gql-subgraph_",
+        ""
+      );
       subGraphQueries.push(subgraphHost);
     });
 
@@ -92,7 +96,6 @@ export function getGraphQlGatewaySystems(
       hostSystems.push(gatewayHost);
     });
 
-  console.log("GraphQL Gateway Systems:", hostSystems);
   return hostSystems;
 }
 
