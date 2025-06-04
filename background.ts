@@ -89,20 +89,6 @@ chrome.webRequest.onCompleted.addListener(
         handler.onCompleted(details);
       }
     }
-
-    console.log("completed: " + details.url, details);
-    if (details.type !== "main_frame") {
-      return; // Only process main frame requests for testing...
-    }
-
-    const breadcrumbs = details.responseHeaders?.find(
-      (header) => header.name.toLowerCase() === "akamai-request-bc"
-    )?.value;
-
-    if (breadcrumbs) {
-      console.log(`Breadcrumbs for ${details.url}:`, breadcrumbs);
-      chrome.storage.local.set({ breadcrumbs: breadcrumbs });
-    }
   },
   { urls: ["https://www.galaxus.ch/*"] },
   ["responseHeaders"]

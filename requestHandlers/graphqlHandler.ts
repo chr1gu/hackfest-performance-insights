@@ -17,12 +17,13 @@ function getSubGraphTimings(
   request: chrome.webRequest.WebResponseHeadersDetails,
   queryName: string
 ): SubGraphQuery[] {
-  const hostSystems: SubGraphQuery[] = [];
+  const subGraphQueries: SubGraphQuery[] = [];
+  console.log("hhh", queryName);
   request.responseHeaders
     ?.filter(
       (header) =>
         header.name.toLowerCase() === "server-timing" &&
-        header.value?.startsWith("dg-trace-gql-subgraphq_")
+        header.value?.trim().startsWith("dg-trace-gql-subgraph_")
     )
     .forEach((header) => {
       const subgraphParts = header.value?.split(";") || [];
@@ -48,10 +49,10 @@ function getSubGraphTimings(
       subgraphHost.duration = subgraphDuration;
       subgraphHost.queryName = subgraphQueryName;
       subgraphHost.offset = subgraphOffset;
-      hostSystems.push(subgraphHost);
+      subGraphQueries.push(subgraphHost);
     });
 
-  return hostSystems;
+  return subGraphQueries;
 }
 
 // Server-Timing: dg-trace-gql-gateway;desc="layout_query";dur=23.2
