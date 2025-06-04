@@ -4,12 +4,22 @@ export interface PageInsights {
   requests: PageInsightRequest[];
 }
 
-export interface PageInsightRequest {
+interface UncompletePageInsightRequest {
   name: string;
   requestId: string;
-  completed: boolean;
-  response?: PageInsightResponse;
+  completed: false;
 }
+
+interface CompletePageInsightRequest {
+  name: string;
+  requestId: string;
+  completed: true;
+  response: PageInsightResponse;
+}
+
+export type PageInsightRequest =
+  | UncompletePageInsightRequest
+  | CompletePageInsightRequest;
 
 export interface PageInsightResponse {
   totalDuration: number;
