@@ -1,5 +1,47 @@
 import { useStorage } from "@plasmohq/storage/hook";
-import type { PageInsights } from "~shared/pageInsights";
+import {
+  GraphQlGatewayHostSystem,
+  type HostSystem,
+  type PageInsights,
+} from "~shared/pageInsights";
+
+const GraphQlGatewayHostSystemComponent = ({
+  host,
+}: {
+  host: GraphQlGatewayHostSystem;
+}) => {
+  return (
+    <span>
+      {host.name} ({host.queryName}) -{" "}
+      {host.duration ? `${host.duration} ms` : "N/A"}
+      {host.subGraphQueries && host.subGraphQueries.length > 0 && (
+        <ul>
+          {host.subGraphQueries.map((subQuery, index) => (
+            <li key={index}>
+              {subQuery.name} ({subQuery.queryName}) -{" "}
+              {subQuery.duration ? `${subQuery.duration} ms` : "N/A"}
+            </li>
+          ))}
+        </ul>
+      )}
+    </span>
+  );
+};
+
+const HostSystem = (host: HostSystem) => {
+  if (host instanceof GraphQlGatewayHostSystem) {
+    return (
+      <GraphQlGatewayHostSystemComponent
+        host={host as GraphQlGatewayHostSystem}
+      />
+    );
+  }
+  return (
+    <span>
+      {host.name} ({host.duration ? `${host.duration} ms` : "N/A"})
+    </span>
+  );
+};
 
 export const PageInsightRequests = () => {
   const [pageInsights] = useStorage<PageInsights>("pageInsights");

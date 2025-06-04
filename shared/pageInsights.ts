@@ -36,12 +36,20 @@ export interface AkamaiInfo {
 export interface HostSystem {
   name: string;
   duration: number | null;
-  children?: HostSystem[];
 }
 
-export interface AkamaiHostSystem extends HostSystem {}
+export class GraphQlGatewayHostSystem implements HostSystem {
+  name: string = "GraphQL Gateway";
+  queryName: string = "Unknown gateway query";
+  duration: number | null = null;
+  subGraphQueries?: SubGraphQuery[] = [];
+}
 
-export interface GraphQlGatewayHostSystem extends HostSystem {}
+export class SubGraphQuery implements HostSystem {
+  name: string = "Sub Graph";
+  queryName: string = "Unknown sub-query";
+  duration: number | null = null;
+}
 
 const storage = new Storage();
 

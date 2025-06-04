@@ -44,5 +44,8 @@ const PerformanceInsights = () => {
   );
 };
 
-const root = createRoot(document.getElementById("root"));
+const root = createRoot(document.getElementById("root")!);
 root.render(<PerformanceInsights />);
+
+// Open a connection to the background script to detect when the panel is open or closed
+chrome.runtime.connect({ name: "devToolsPanel" });

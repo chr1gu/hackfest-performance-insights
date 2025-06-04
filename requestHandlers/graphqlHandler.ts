@@ -1,14 +1,92 @@
 import {
   getPageInsights,
+  GraphQlGatewayHostSystem,
+  SubGraphQuery,
   updatePageInsights,
   type PageInsightRequest,
 } from "~shared/pageInsights";
 import {
+  findServerTimingHeader,
   getAkamaiInfo,
-  getEdgeDuration,
-  getOriginDuration,
   type RequestHandler,
 } from "./requestHandler";
+
+// Server-Timing: dg-trace-gql-subgraphq_dg-shopproductcatalog;desc="layout_query";dur=223;offset=1
+// Server-Timing: dg-trace-gql-subgraphq_dg-shopproductcatalog;desc="layout_query";dur=18;offset=225
+// Server-Timing: dg-trace-gql-subgraphq_dg-order-details;desc="page_query";dur=18;offset=225
+function getSubGraphTimings(
+  request: chrome.webRequest.WebResponseHeadersDetails,
+  queryName: string
+): SubGraphQuery[] {
+  const hostSystems: SubGraphQuery[] = [];
+  request.responseHeaders
+    ?.filter(
+      (header) =>
+        header.name.toLowerCase() === "server-timing" &&
+        header.value?.startsWith("dg-trace-gql-subgraphq_")
+    )
+    .forEach((header) => {
+      const subgraphParts = header.value?.split(";") || [];
+      const subgraphQueryName =
+        subgraphParts
+          .find((part) => part.startsWith("desc="))
+          ?.replace("desc=", "")
+          .trim() ?? queryName;
+
+      const subgraphDuration = parseInt(
+        subgraphParts
+          .find((part) => part.startsWith("dur="))
+          ?.replace("dur=", "") || "0"
+      );
+
+      const subgraphHost = new GraphQlGatewayHostSystem();
+      subgraphHost.duration = subgraphDuration;
+      subgraphHost.queryName = subgraphQueryName;
+      hostSystems.push(subgraphHost);
+    });
+
+  return hostSystems;
+}
+
+// Server-Timing: dg-trace-gql-gateway;desc="layout_query";dur=23.2
+// Server-Timing: dg-trace-gql-gateway;desc="page_query";dur=23.2
+export function getGraphQlGatewaySystems(
+  request: chrome.webRequest.WebResponseHeadersDetails
+): GraphQlGatewayHostSystem[] {
+  const hostSystems: GraphQlGatewayHostSystem[] = [];
+  request.responseHeaders
+    ?.filter(
+      (header) =>
+        header.name.toLowerCase() === "server-timing" &&
+        header.value?.startsWith("dg-trace-gql-gateway")
+    )
+    .forEach((header) => {
+      const gatewayParts = header.value?.split(";") || [];
+      const gatewayQueryName =
+        gatewayParts
+          .find((part) => part.startsWith("desc="))
+          ?.replace("desc=", "")
+          .trim() ?? "Unknown layout query";
+
+      const gatewayDuration = parseInt(
+        gatewayParts
+          .find((part) => part.startsWith("dur="))
+          ?.replace("dur=", "") || "0"
+      );
+
+      const gatewayHost = new GraphQlGatewayHostSystem();
+      gatewayHost.duration = gatewayDuration;
+      gatewayHost.queryName = gatewayQueryName;
+      gatewayHost.subGraphQueries = getSubGraphTimings(
+        request,
+        gatewayQueryName
+      );
+
+      hostSystems.push(gatewayHost);
+    });
+
+  return hostSystems;
+}
 
 export class GraphQLHandler implements RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {
@@ -45,7 +123,7 @@ export class GraphQLHandler implements RequestHandler {
         requestInfo.response = {
           totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
           akamaiInfo,
-          hosts: [], // This can be populated with more detailed host information if needed
+          hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
         };
         updatePageInsights(pageInsights);
       }
