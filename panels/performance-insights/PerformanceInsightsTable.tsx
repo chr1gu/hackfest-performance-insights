@@ -5,8 +5,7 @@ import type {
 import { InfrastructureTag } from "./InfrastructureTag";
 import { InfrastructureTags } from "./InfrastructureTags";
 import { RequestTag } from "./RequestTag";
-import { useState, useMemo } from "react";
-import PageInsightSearchField from "./PageInsightSearchField";
+import { useMemo } from "react";
 import { usePageInsightsStorage } from "~shared/storage";
 import type {
   CompletePageInsightRequest,
@@ -37,7 +36,7 @@ type PerformanceInsightsTableProps = {
 export const PerformanceInsightsTable: FunctionComponent<
   PerformanceInsightsTableProps
 > = ({ requestId, onRowSelection, searchTerm }) => {
-  const pageInsights = usePageInsightsStorage();
+  const [pageInsights] = usePageInsightsStorage();
 
   const requests = useMemo(() => {
     return (

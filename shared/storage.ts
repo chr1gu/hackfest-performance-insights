@@ -10,12 +10,10 @@ const sessionStorage = new Storage({
 });
 
 export const usePageInsightsStorage = () => {
-  const [pageInsights] = useStorage<PageInsights>({
+  return useStorage<PageInsights>({
     key: pageInsightsKey,
     instance: sessionStorage,
   });
-
-  return pageInsights;
 };
 
 export function getPageInsights(

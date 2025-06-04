@@ -1,7 +1,5 @@
 import type { FunctionComponent } from "~node_modules/@types/react";
 import { useMemo } from "react";
-import { useStorage } from "@plasmohq/storage/hook";
-import type { PageInsights } from "~shared/pageInsights";
 import { usePageInsightsStorage } from "~shared/storage";
 import { FlameGraph } from "./FlameGraph";
 
@@ -12,7 +10,7 @@ interface PerformanceInsightDetailProps {
 export const PerformanceInsightDetail: FunctionComponent<
   PerformanceInsightDetailProps
 > = ({ requestId }) => {
-  const pageInsights = usePageInsightsStorage();
+  const [pageInsights] = usePageInsightsStorage();
 
   const request = useMemo(() => {
     return pageInsights?.requests.find((req) => req.requestId === requestId);

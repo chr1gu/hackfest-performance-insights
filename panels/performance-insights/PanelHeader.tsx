@@ -1,5 +1,6 @@
 import type { FunctionComponent } from "~node_modules/@types/react";
 import PageInsightSearchField from "./PageInsightSearchField";
+import { usePageInsightsStorage } from "~shared/storage";
 
 export type PanelHeaderProps = {
   searchTerm: string;
@@ -7,6 +8,8 @@ export type PanelHeaderProps = {
 };
 
 export const PanelHeader: FunctionComponent<PanelHeaderProps> = (props) => {
+  const [pageInsights, setPageInsights] = usePageInsightsStorage();
+
   return (
     <>
       <div
@@ -54,8 +57,26 @@ export const PanelHeader: FunctionComponent<PanelHeaderProps> = (props) => {
           />
         </div>
         <div style={{ flex: 1 }} />
-        {/* Fahrverbot icon rechts */}
-        <div style={{ marginLeft: "16px", marginRight: "16px" }}>
+        {/* Fahrverbot icon rechts als Button */}
+        <button
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            marginLeft: "16px",
+            marginRight: "16px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+          }}
+          title="Fahrverbot"
+          onClick={() => {
+            // Hier kann eine Aktion ausgeführt werden
+            setPageInsights(() => ({
+              requests: [],
+            }));
+          }}
+        >
           <svg
             width="20"
             height="20"
@@ -80,7 +101,7 @@ export const PanelHeader: FunctionComponent<PanelHeaderProps> = (props) => {
               strokeWidth="2"
             />
           </svg>
-        </div>
+        </button>
       </div>
     </>
   );

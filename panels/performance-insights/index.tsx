@@ -1,8 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { Breadcrumbs } from "./breadcrumbs";
-import { ServerTimings } from "./serverTimings";
 import { PanelHeader } from "./PanelHeader";
-import { PageInsightRequests } from "./pageInsightRequests";
 import { PerformanceInsightsTable } from "./PerformanceInsightsTable";
 import { useState } from "react";
 import { PerformanceInsightDetail } from "./PerformanceInsightDetail";
@@ -38,8 +35,7 @@ const PerformanceInsights = () => {
       {requestId ? <PerformanceInsightDetail requestId={requestId} /> : null}
 
       {/* <Breadcrumbs />
-      <ServerTimings />
-      <PageInsightRequests /> */}
+      <ServerTimings />*/}
     </div>
   );
 };
