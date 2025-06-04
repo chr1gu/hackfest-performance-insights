@@ -38,12 +38,16 @@ export interface AkamaiInfo {
   originDuration: number;
 }
 
+export type HostSystemType = "GraphQLGateway" | "SubGraph";
+
 export interface HostSystem {
+  type: HostSystemType;
   name: string;
   duration: number | null;
 }
 
 export class GraphQlGatewayHostSystem implements HostSystem {
+  type: HostSystemType = "GraphQLGateway";
   name: string = "GraphQL Gateway";
   queryName: string = "Unknown gateway query";
   duration: number | null = null;
@@ -51,9 +55,10 @@ export class GraphQlGatewayHostSystem implements HostSystem {
 }
 
 export class SubGraphQuery implements HostSystem {
+  type: HostSystemType = "SubGraph";
   name: string = "Sub Graph";
   queryName: string = "Unknown sub-query";
   subGraphName: string = "";
   duration: number | null = null;
-  offset: number | null = null;
+  offset: number = 0;
 }

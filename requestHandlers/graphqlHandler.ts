@@ -56,7 +56,7 @@ function getSubGraphTimings(
       subGraphQueries.push(subgraphHost);
     });
 
-  return subGraphQueries;
+  return subGraphQueries.sort((a, b) => a.offset - b.offset);
 }
 
 // Server-Timing: dg-trace-gql-gateway;desc="layout_query";dur=23.2
