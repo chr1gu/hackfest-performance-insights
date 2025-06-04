@@ -33,7 +33,8 @@ export interface PageInsightResponse {
 
 export interface AkamaiInfo {
   edgeDuration: number;
-  edgeLocation: string;
+  edgeLocation: string | undefined;
+  cacheLocation: string | undefined;
   originDuration: number;
 }
 
