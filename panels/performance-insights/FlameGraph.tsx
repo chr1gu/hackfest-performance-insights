@@ -12,6 +12,7 @@ interface FlameGraphProps {
 }
 
 export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
+  let baseOffset = request.response.akamaiInfo.edgeDuration;
   const totalDuration = request.response.totalDuration;
 
   console.dir(request.response);
@@ -49,7 +50,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
                   durationInPercent={
                     ((host.duration || 0) / totalDuration) * 100
                   }
-                  offset={0}
+                  offset={(baseOffset / totalDuration) * 100}
                 />
               </td>
             </tr>
