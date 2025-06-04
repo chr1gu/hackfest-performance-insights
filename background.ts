@@ -13,7 +13,7 @@ const addDebugHeadersToRequests = async () => {
   updateAddedDebugHeaders(tracingKey);
 };
 
-const updateAddedDebugHeaders = async (tracingKey: string) => {
+const updateAddedDebugHeaders = async (tracingKey: string | null) => {
   const addRules: chrome.declarativeNetRequest.Rule[] = [];
   if (tracingKey) {
     addRules.push({
@@ -50,7 +50,19 @@ const updateAddedDebugHeaders = async (tracingKey: string) => {
   });
 };
 
-addDebugHeadersToRequests();
+// Add debug headers to requests when the extension is loaded
+chrome.runtime.onConnect.addListener(function (port) {
+  if (port.name === "devToolsPanel") {
+    console.log("Adding debug headers to requests");
+    addDebugHeadersToRequests();
+
+    // Remove debug headers when the panel is closed to avoid sending unnecessary
+    port.onDisconnect.addListener(async () => {
+      console.log("Removing debug headers from requests");
+      updateAddedDebugHeaders(null);
+    });
+  }
+});
 
 /**
  * Dynamically update declarativeNetRequest rules based on storage changes because we don't want to hardcode those rules in the manifest.
