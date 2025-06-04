@@ -1,0 +1,40 @@
+import type { FunctionComponent } from "~node_modules/@types/react";
+
+type RequestTagProps = {
+  tag: "Document" | "GraphQL";
+};
+
+const colorMap: Record<
+  RequestTagProps["tag"],
+  { borderColor: string; color: string; backgroundColor: string }
+> = {
+  Document: {
+    color: "#fff",
+    backgroundColor: "#228be6",
+    borderColor: "#1971c2",
+  },
+  GraphQL: {
+    color: "#fff",
+    backgroundColor: "#fa5252",
+    borderColor: "#e03131",
+  },
+};
+
+export const RequestTag: FunctionComponent<RequestTagProps> = ({ tag }) => {
+  return (
+    <div
+      style={{
+        display: "inline-block",
+        padding: "4px 8px",
+        borderRadius: "20px",
+        backgroundColor: colorMap[tag].backgroundColor,
+        fontSize: "13px",
+        letterSpacing: "0.25px",
+        color: colorMap[tag].color,
+        border: `1px solid ${colorMap[tag].borderColor}`,
+      }}
+    >
+      {tag}
+    </div>
+  );
+};
