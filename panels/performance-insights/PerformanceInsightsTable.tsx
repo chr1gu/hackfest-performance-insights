@@ -25,18 +25,18 @@ const thStyles: CSSProperties = {
 const tdStyles: CSSProperties = {
   textAlign: "left",
   fontSize: "14px",
-  padding: "12px 0",
+  padding: "6px 0",
 };
 
 type PerformanceInsightsTableProps = {
   requestId?: string | null;
+  searchTerm: string;
   onRowSelection?: (id: string) => void;
 };
 
 export const PerformanceInsightsTable: FunctionComponent<
   PerformanceInsightsTableProps
-> = ({ requestId, onRowSelection }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+> = ({ requestId, onRowSelection, searchTerm }) => {
   const pageInsights = usePageInsightsStorage();
 
   const requests = useMemo(() => {
@@ -49,12 +49,6 @@ export const PerformanceInsightsTable: FunctionComponent<
 
   return (
     <>
-      <div style={{ flex: "0 0 auto", padding: "16px 20px 8px" }}>
-        <PageInsightSearchField
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-        />
-      </div>
       <div
         style={{
           padding: "0 20px 20px",
@@ -70,14 +64,7 @@ export const PerformanceInsightsTable: FunctionComponent<
           }}
         >
           <thead>
-            <tr
-              style={{
-                position: "sticky",
-                top: "-20px",
-                backgroundColor: "white",
-                zIndex: 100,
-              }}
-            >
+            <tr>
               <th style={thStyles}>Type</th>
               <th style={thStyles}>Request</th>
               <th style={thStyles}>Duration</th>
@@ -117,10 +104,7 @@ export const PerformanceInsightsTable: FunctionComponent<
                       : undefined
                   }
                 >
-                  <td
-                    style={{ ...tdStyles, padding: "12px 12px 12px 0" }}
-                    width="1px"
-                  >
+                  <td style={{ ...tdStyles, paddingRight: "12px" }} width="1px">
                     <RequestTag tag={request.type} />
                   </td>
                   <td style={tdStyles} width="auto">

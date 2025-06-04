@@ -1,4 +1,12 @@
-export const PanelHeader = () => {
+import type { FunctionComponent } from "~node_modules/@types/react";
+import PageInsightSearchField from "./PageInsightSearchField";
+
+export type PanelHeaderProps = {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+};
+
+export const PanelHeader: FunctionComponent<PanelHeaderProps> = (props) => {
   return (
     <>
       <div
@@ -56,6 +64,12 @@ export const PanelHeader = () => {
         >
           DG Performance Insights
         </h1>
+        <div style={{ flex: "0 0 auto", padding: "16px 20px 8px" }}>
+          <PageInsightSearchField
+            searchTerm={props.searchTerm}
+            setSearchTerm={props.setSearchTerm}
+          />
+        </div>
       </div>
     </>
   );

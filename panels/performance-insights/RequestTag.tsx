@@ -26,7 +26,7 @@ export const RequestTag: FunctionComponent<RequestTagProps> = ({ tag }) => {
     <div
       style={{
         display: "inline-block",
-        padding: "4px 8px",
+        padding: "3px 8px",
         borderRadius: "20px",
         backgroundColor: colorMap[tag].backgroundColor,
         fontSize: "13px",

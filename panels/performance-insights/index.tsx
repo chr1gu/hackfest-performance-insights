@@ -9,6 +9,7 @@ import { PerformanceInsightDetail } from "./PerformanceInsightDetail";
 
 const PerformanceInsights = () => {
   const [requestId, setSelectedInsights] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const onRowSelection = (id: string) => {
     if (id === requestId) {
@@ -28,10 +29,11 @@ const PerformanceInsights = () => {
         flexDirection: "column",
       }}
     >
-      <PanelHeader />
+      <PanelHeader searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <PerformanceInsightsTable
         requestId={requestId}
         onRowSelection={onRowSelection}
+        searchTerm={searchTerm}
       />
       {requestId ? <PerformanceInsightDetail requestId={requestId} /> : null}
 

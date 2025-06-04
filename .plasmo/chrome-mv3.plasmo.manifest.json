@@ -41,7 +41,7 @@
         "https://test-www.galaxus.ch/*"
       ],
       "js": [
-        "../content.ts"
+        "..\\content.ts"
       ]
     }
   ],
