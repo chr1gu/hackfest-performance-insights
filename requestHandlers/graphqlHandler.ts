@@ -28,19 +28,26 @@ function getSubGraphTimings(
       const subgraphParts = header.value?.split(";") || [];
       const subgraphQueryName =
         subgraphParts
-          .find((part) => part.startsWith("desc="))
+          .find((part) => part.trim().startsWith("desc="))
           ?.replace("desc=", "")
           .trim() ?? queryName;
 
       const subgraphDuration = parseInt(
         subgraphParts
-          .find((part) => part.startsWith("dur="))
+          .find((part) => part.trim().startsWith("dur="))
+          ?.replace("dur=", "") || "0"
+      );
+
+      const subgraphOffset = parseInt(
+        subgraphParts
+          .find((part) => part.trim().startsWith("offset="))
           ?.replace("dur=", "") || "0"
       );
 
       const subgraphHost = new GraphQlGatewayHostSystem();
       subgraphHost.duration = subgraphDuration;
       subgraphHost.queryName = subgraphQueryName;
+      subgraphHost.offset = subgraphOffset;
       hostSystems.push(subgraphHost);
     });
 
@@ -63,13 +70,13 @@ export function getGraphQlGatewaySystems(
       const gatewayParts = header.value?.split(";") || [];
       const gatewayQueryName =
         gatewayParts
-          .find((part) => part.startsWith("desc="))
+          .find((part) => part.trim().startsWith("desc="))
           ?.replace("desc=", "")
           .trim() ?? "Unknown layout query";
 
       const gatewayDuration = parseInt(
         gatewayParts
-          .find((part) => part.startsWith("dur="))
+          .find((part) => part.trim().startsWith("dur="))
           ?.replace("dur=", "") || "0"
       );
 

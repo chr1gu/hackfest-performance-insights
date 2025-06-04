@@ -47,6 +47,7 @@ export class GraphQlGatewayHostSystem implements HostSystem {
   name: string = "GraphQL Gateway";
   queryName: string = "Unknown gateway query";
   duration: number | null = null;
+  offset: number | null = null;
   subGraphQueries?: SubGraphQuery[] = [];
 }
 
