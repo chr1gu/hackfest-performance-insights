@@ -23,19 +23,12 @@ export const PanelHeader: FunctionComponent<PanelHeaderProps> = (props) => {
           display: "flex",
           flex: "0 0 auto",
           alignItems: "center",
-          padding: "16px 16px",
+          padding: "2px 0px",
           boxShadow: "0px 0px 2px #00000029, 0px 4px 8px #00000014",
           zIndex: 2,
         }}
       >
-        <div
-          style={{
-            overflow: "hidden",
-            height: "30px",
-            width: "30px",
-            marginRight: "16px",
-          }}
-        >
+        <div style={{ paddingLeft: "8px" }}>
           <svg
             style={{
               height: "100%",
@@ -43,8 +36,8 @@ export const PanelHeader: FunctionComponent<PanelHeaderProps> = (props) => {
             }}
             fill="none"
             viewBox="0 0 65 80"
-            width="65"
-            height="65"
+            width="24"
+            height="24"
           >
             <path
               fill="#000"
@@ -54,21 +47,39 @@ export const PanelHeader: FunctionComponent<PanelHeaderProps> = (props) => {
             ></path>
           </svg>
         </div>
-        <h1
-          style={{
-            fontSize: "22px",
-            fontWeight: 650,
-            margin: 0,
-            letterSpacing: "0.01em",
-          }}
-        >
-          DG Performance Insights
-        </h1>
-        <div style={{ flex: "0 0 auto", padding: "16px 20px 8px" }}>
+        <div style={{ flex: "0 0 auto", padding: "8px 20px 8px" }}>
           <PageInsightSearchField
             searchTerm={props.searchTerm}
             setSearchTerm={props.setSearchTerm}
           />
+        </div>
+        <div style={{ flex: 1 }} />
+        {/* Fahrverbot icon rechts */}
+        <div style={{ marginLeft: "16px", marginRight: "16px" }}>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 28 28"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="14"
+              cy="14"
+              r="13"
+              fill="#F5F6F4"
+              stroke="#444941"
+              strokeWidth="2"
+            />
+            <line
+              x1="7"
+              y1="21"
+              x2="21"
+              y2="7"
+              stroke="#444941"
+              strokeWidth="2"
+            />
+          </svg>
         </div>
       </div>
     </>
