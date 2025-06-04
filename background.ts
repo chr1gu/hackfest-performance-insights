@@ -16,6 +16,7 @@ const addDebugHeadersToRequests = async () => {
 const updateAddedDebugHeaders = async (tracingKey: string | null) => {
   const addRules: chrome.declarativeNetRequest.Rule[] = [];
   if (tracingKey) {
+    console.log("Updating debug headers with tracing key:", tracingKey);
     addRules.push({
       id: 1,
       priority: 1,
