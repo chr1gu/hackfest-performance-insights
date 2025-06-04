@@ -60,5 +60,5 @@ export class SubGraphQuery implements HostSystem {
   queryName: string = "Unknown sub-query";
   subGraphName: string = "";
   duration: number | null = null;
-  offset: number | null = null;
+  offset: number = 0;
 }
