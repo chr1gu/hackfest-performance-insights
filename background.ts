@@ -1,7 +1,7 @@
 import {
   pragmaHeader,
   pragmaHeaderValues,
-  tracingHeader,
+  tracingHeaderKey,
 } from "./shared/constants";
 import { getTracingKey } from "~shared/storage";
 import type { RequestHandler } from "~requestHandlers/requestHandler";
@@ -16,6 +16,7 @@ const addDebugHeadersToRequests = async () => {
 const updateAddedDebugHeaders = async (tracingKey: string | null) => {
   const addRules: chrome.declarativeNetRequest.Rule[] = [];
   if (tracingKey) {
+    console.log("Updating debug headers with tracing key:", tracingKey);
     addRules.push({
       id: 1,
       priority: 1,
@@ -31,7 +32,7 @@ const updateAddedDebugHeaders = async (tracingKey: string | null) => {
         requestHeaders: [
           {
             operation: chrome.declarativeNetRequest.HeaderOperation.SET,
-            header: tracingHeader,
+            header: tracingHeaderKey,
             value: tracingKey,
           },
           {
@@ -70,13 +71,7 @@ chrome.runtime.onConnect.addListener(function (port) {
  */
 chrome.storage.onChanged.addListener(async (changes, namespace) => {
   for (let [key, { newValue }] of Object.entries(changes)) {
-    // console.log(
-    //   `Storage key "${key}" in namespace "${namespace}" changed.`,
-    //   `New value is ".`,
-    //   newValue
-    // );
-
-    if (key === tracingHeader) {
+    if (key === tracingHeaderKey) {
       updateAddedDebugHeaders(newValue);
     }
   }
@@ -104,36 +99,9 @@ chrome.webRequest.onCompleted.addListener(
       (header) => header.name.toLowerCase() === "akamai-request-bc"
     )?.value;
 
-    const edgeDuration = details.responseHeaders
-      ?.find(
-        (header) =>
-          header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("edge")
-      )
-      ?.value?.replace("edge; dur=", "");
-
-    const originDuration = details.responseHeaders
-      ?.find(
-        (header) =>
-          header.name.toLowerCase() === "server-timing" &&
-          header.value?.startsWith("origin")
-      )
-      ?.value?.replace("origin; dur=", "");
-
     if (breadcrumbs) {
       console.log(`Breadcrumbs for ${details.url}:`, breadcrumbs);
       chrome.storage.local.set({ breadcrumbs: breadcrumbs });
-    }
-
-    console.log(
-      `Server Timings for ${details.url}: edge ${edgeDuration}, origin ${originDuration}`
-    );
-
-    if (edgeDuration && originDuration) {
-      chrome.storage.local.set({
-        edgeDuration: edgeDuration,
-        originDuration: originDuration,
-      });
     }
   },
   { urls: ["https://www.galaxus.ch/*"] },

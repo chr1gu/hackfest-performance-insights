@@ -9,6 +9,7 @@ import { InfrastructureTags } from "./InfrastructureTags";
 import { RequestTag } from "./RequestTag";
 import { useState, useMemo } from "react";
 import PageInsightSearchField from "./PageInsightSearchField";
+import { usePageInsightsStorage } from "~shared/storage";
 
 const thStyles: CSSProperties = {
   textAlign: "left",
@@ -32,7 +33,7 @@ export const PerformanceInsightsTable: FunctionComponent<
   PerformanceInsightsTableProps
 > = ({ requestId, onRowSelection }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [pageInsights] = useStorage<PageInsights>("pageInsights");
+  const pageInsights = usePageInsightsStorage();
 
   const requests = useMemo(() => {
     return (

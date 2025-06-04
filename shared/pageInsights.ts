@@ -54,24 +54,3 @@ export class SubGraphQuery implements HostSystem {
   queryName: string = "Unknown sub-query";
   duration: number | null = null;
 }
-
-const storage = new Storage();
-
-export function updatePageInsights(pageInsights: PageInsights) {
-  storage.set("pageInsights", pageInsights);
-}
-
-export function getPageInsights(
-  callback: (pageInsights: PageInsights) => void
-) {
-  storage.get<PageInsights>("pageInsights").then((pageInsights) => {
-    if (pageInsights) {
-      callback(pageInsights);
-    } else {
-      // If no insights are found, return an empty structure
-      callback({
-        requests: [],
-      });
-    }
-  });
-}

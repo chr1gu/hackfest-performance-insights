@@ -1,9 +1,8 @@
-import { useStorage } from "@plasmohq/storage/hook";
 import {
   GraphQlGatewayHostSystem,
   type HostSystem,
-  type PageInsights,
 } from "~shared/pageInsights";
+import { usePageInsightsStorage } from "~shared/storage";
 
 const GraphQlGatewayHostSystemComponent = ({
   host,
@@ -44,9 +43,7 @@ const HostSystem = (host: HostSystem) => {
 };
 
 export const PageInsightRequests = () => {
-  const [pageInsights] = useStorage<PageInsights>("pageInsights");
-
-  console.log("--------Page Insights Requests:", pageInsights?.requests);
+  const pageInsights = usePageInsightsStorage();
 
   return (
     <div>
