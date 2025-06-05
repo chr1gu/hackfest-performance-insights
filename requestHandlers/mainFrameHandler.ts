@@ -6,6 +6,7 @@ import {
 } from "./requestHandler";
 import { getGraphQlGatewaySystems } from "./graphqlHandler";
 import { getPageInsights, updatePageInsights } from "~shared/storage";
+import { getGrapholithGatewaySystems } from "./grapholithHandler";
 
 export class MainFrameHandler implements RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {
@@ -50,11 +51,14 @@ export class MainFrameHandler implements RequestHandler {
         requestInfo.completed = true;
         // This if statement is simply here as a lazy way to fix ts error
         if (requestInfo.completed) {
+          var graphqlGateways = getGraphQlGatewaySystems(request);
+          const grapholiths = getGrapholithGatewaySystems(request);
+
           requestInfo.response = {
             totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
             akamaiInfo,
             isoDuration: getIsoDurations(request),
-            hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
+            hosts: [...graphqlGateways, ...grapholiths],
           };
         }
         updatePageInsights(pageInsights);
