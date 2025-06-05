@@ -36,7 +36,6 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
               }
               offset={0}
               type="Akamai"
-              title="Edge"
             />
             <TimeSpan
               duration={request.response.akamaiInfo.originDuration}
@@ -46,7 +45,6 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
               }
               offset={0}
               type="Akamai"
-              title="Origin"
             />
           </td>
         </tr>
