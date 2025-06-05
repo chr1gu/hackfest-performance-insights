@@ -22,7 +22,7 @@ const colorMap: Record<
   Grapholith: {
     color: "#fff",
     backgroundColor: "#52e4fa",
-    borderColor: "#3177e0",
+    borderColor: "#52e4fa",
   },
 };
 

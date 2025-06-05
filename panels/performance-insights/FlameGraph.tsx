@@ -187,7 +187,7 @@ const TimeSpan: FunctionComponent<TimeSpanProps> = ({
         marginRight: "2px",
         marginBottom: "8px",
         width: `calc(${duration}% - 4px)`,
-        minWidth: "18px",
+        minWidth: "10px",
         height: "14px",
         backgroundColor: colors.backgroundColor,
         float: "left",
@@ -205,6 +205,7 @@ const TimeSpan: FunctionComponent<TimeSpanProps> = ({
           marginTop: "-5px",
           top: "100%",
           left: "0",
+          whiteSpace: "nowrap",
         }}
       >
         {time}ms
