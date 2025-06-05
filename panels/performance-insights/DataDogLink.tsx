@@ -16,7 +16,6 @@ export const DataDogLink: FunctionComponent<DataDogLinkProps> = ({
       background: "#6331b6",
       color: "#fff",
       padding: "8px 8px",
-      // minWidth: 480,
       borderRadius: 4,
       textAlign: "center",
       fontWeight: 650,
