@@ -7,7 +7,7 @@ import {
 import {
   findServerTimingHeader,
   getAkamaiInfo,
-  getIsoDuration,
+  getIsoDurations,
   type RequestHandler,
 } from "./requestHandler";
 import { getPageInsights, updatePageInsights } from "~shared/storage";
@@ -27,12 +27,13 @@ export function getGrapholithGatewaySystems(
     )
     .forEach((header) => {
       const gatewayParts = header.value?.split(";") || [];
-      const gatewayQueryName =
+      let gatewayQueryName =
         gatewayParts
           .find((part) => part.trim().startsWith("description="))
           ?.replace("description=", "")
           .trim() ?? "Unknown layout query";
 
+      gatewayQueryName = gatewayQueryName.replace("-", "_");
       const gatewayDuration = parseInt(
         gatewayParts
           .find((part) => part.trim().startsWith("dur="))
@@ -87,7 +88,7 @@ export class GrapholithHandler implements RequestHandler {
           requestInfo.response = {
             totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
             akamaiInfo,
-            isoDuration: getIsoDuration(request),
+            isoDuration: getIsoDurations(request),
             hosts: getGrapholithGatewaySystems(request), // This can be populated with more detailed host information if needed
           };
         }
