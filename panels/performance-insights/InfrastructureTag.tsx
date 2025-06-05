@@ -31,6 +31,7 @@ export const InfrastructureTag: FunctionComponent<InfrastructureTagProps> = ({
         letterSpacing: "0.25px",
         color: colorMap[tag].color,
         border: `1px solid ${colorMap[tag].borderColor}`,
+        whiteSpace: "nowrap",
       }}
     >
       {tag} {count > 1 ? `(${count})` : ""}

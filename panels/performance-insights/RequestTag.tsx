@@ -38,6 +38,7 @@ export const RequestTag: FunctionComponent<RequestTagProps> = ({ tag }) => {
         letterSpacing: "0.25px",
         color: colorMap[tag]?.color,
         border: `1px solid ${colorMap[tag]?.borderColor}`,
+        whiteSpace: "nowrap",
       }}
     >
       {tag}
