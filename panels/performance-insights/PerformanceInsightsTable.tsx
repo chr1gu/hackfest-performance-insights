@@ -75,7 +75,7 @@ export const PerformanceInsightsTable: FunctionComponent<
               if (request.response) {
                 const hosts = request.response.hosts;
                 for (const host of hosts) {
-                  if (host.name === "GraphQL Gateway") {
+                  if (host.type === "GraphQLGateway") {
                     gatewayInvocations++;
                   }
                   if (host.type === "Grapholith") {

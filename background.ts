@@ -103,7 +103,23 @@ chrome.webRequest.onCompleted.addListener(
   async (details) => {
     for (const handler of requestHandlers) {
       if (handler.canHandleRequest(details)) {
-        handler.onCompleted(details);
+        getPageInsights((pageInsights) => {
+          // Find the request in the page insights and mark it as completed
+          const requestInfo = pageInsights.requests.find(
+            (req) => req.requestId === details.requestId
+          );
+
+          if (requestInfo) {
+            requestInfo.endTimeMs = details.timeStamp;
+            requestInfo.response = {
+              totalDuration: details.timeStamp - requestInfo.startTimeMs,
+              hosts: handler.getHostSystems(details),
+            };
+
+            updatePageInsights(pageInsights);
+          }
+        });
+
         break; // Exit the loop after handling the first matching handler
       }
     }

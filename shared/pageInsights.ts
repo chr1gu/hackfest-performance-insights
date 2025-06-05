@@ -21,15 +21,43 @@ export interface IsoDurations {
 
 export interface PageInsightResponse {
   totalDuration: number;
-  akamaiInfo: AkamaiInfo;
-  isoDuration: IsoDurations | null;
-
   hosts: HostSystem[];
 }
 
-export type HostSystemType = "GraphQLGateway" | "Grapholith";
+export type HostSystemType =
+  | "AkamaiHostSystem"
+  | "AkamaiOriginHostSystem"
+  | "IsomorphRenderHostSystem"
+  | "IsomorphInitialPropsHostSystem"
+  | "GraphQLGateway"
+  | "Grapholith";
 
-export interface AkamaiHostSystem {}
+export interface HostSystem {
+  type: HostSystemType;
+  duration: number;
+}
+
+export class AkamaiHostSystem implements HostSystem {
+  type: HostSystemType = "AkamaiHostSystem";
+  duration: number = 0;
+  location: string | undefined = undefined;
+}
+
+export class AkamaiOriginHostSystem extends AkamaiHostSystem {
+  type: HostSystemType = "AkamaiOriginHostSystem";
+  children: HostSystem[] = [];
+}
+
+export class IsomorphRenderHostSystem implements HostSystem {
+  type: HostSystemType = "IsomorphRenderHostSystem";
+  duration: number = 0;
+}
+
+export class IsomorphInitialPropsHostSystem implements HostSystem {
+  type: HostSystemType = "IsomorphInitialPropsHostSystem";
+  duration: number = 0;
+  children: HostSystem[] = [];
+}
 
 export interface AkamaiInfo {
   edgeDuration: number;
@@ -38,31 +66,23 @@ export interface AkamaiInfo {
   originDuration: number;
 }
 
-export interface HostSystem {
-  type: HostSystemType;
-  name: string;
-  duration: number | null;
-}
-
 export class GraphQlGatewayHostSystem implements HostSystem {
   type: HostSystemType = "GraphQLGateway";
-  name: string = "GraphQL Gateway";
   queryName: string = "Unknown gateway query";
-  duration: number | null = null;
+  duration: number = 0;
   subGraphQueries?: SubGraphQuery[] = [];
 }
 
 export class GrapholithHostSystem implements HostSystem {
   type: HostSystemType = "Grapholith";
-  name: string = "Grapholith";
   queryName: string = "Unknown gateway query";
-  duration: number | null = null;
+  duration: number = 0;
 }
 
 export class SubGraphQuery {
   name: string = "Sub Graph";
   queryName: string = "Unknown sub-query";
   subGraphName: string = "";
-  duration: number | null = null;
+  duration: number = 0;
   offset: number = 0;
 }

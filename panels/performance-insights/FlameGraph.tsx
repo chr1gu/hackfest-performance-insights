@@ -84,7 +84,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
             return (
               <tr key={index}>
                 <th style={thStyles}>{host.queryName}</th>
-                <th style={thStyles}>{host.name}</th>
+                <th style={thStyles}>Grapholith</th>
                 <td style={tdStyles}>
                   <TimeSpan
                     duration={host.duration || 0}
@@ -104,7 +104,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
               <React.Fragment key={index}>
                 <tr key={index}>
                   <th style={thStyles}>{host.queryName}</th>
-                  <th style={thStyles}>{host.name}</th>
+                  <th style={thStyles}>GraphQL Gateway</th>
                   <td style={tdStyles}>
                     <TimeSpan
                       duration={host.duration || 0}

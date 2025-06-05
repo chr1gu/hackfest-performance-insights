@@ -1,4 +1,8 @@
-import { type RequestType } from "~shared/pageInsights";
+import {
+  type HostSystem,
+  type PageInsightRequest,
+  type RequestType,
+} from "~shared/pageInsights";
 import {
   getAkamaiInfo,
   getIsoDurations,
@@ -7,6 +11,15 @@ import {
 import { getGraphQlGatewaySystems } from "./graphqlHandler";
 import { getPageInsights, updatePageInsights } from "~shared/storage";
 import { getGrapholithGatewaySystems } from "./grapholithHandler";
+import { findServerTimingHeaderStartingWith } from "./serverTimings/serverTimingHelpers";
+import {
+  getAkamaiEdgeHostSystem,
+  getAkamaiOriginHostSystem,
+} from "./serverTimings/akamaiServerTimings";
+import {
+  getIsomorphicRenderHostSystem,
+  getIsomorphInitialPropsHostSystem,
+} from "./serverTimings/isomorphicServerTimings";
 
 export class MainFrameHandler implements RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean {
@@ -26,31 +39,39 @@ export class MainFrameHandler implements RequestHandler {
     return "Document";
   }
 
-  onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
-    // Logic to execute after handling the request
+  getHostSystems(
+    request: chrome.webRequest.WebResponseHeadersDetails
+  ): HostSystem[] {
+    const result: HostSystem[] = [];
+    const akamaiEdge = findServerTimingHeaderStartingWith("edge;", request);
+    if (akamaiEdge) {
+      result.push(getAkamaiEdgeHostSystem(akamaiEdge, request));
+    }
 
-    getPageInsights((pageInsights) => {
-      // Find the request in the page insights and mark it as completed
-      const requestInfo = pageInsights.requests.find(
-        (req) => req.requestId === request.requestId
-      );
+    var graphqlGateways = getGraphQlGatewaySystems(request);
+    const grapholiths = getGrapholithGatewaySystems(request);
 
-      if (requestInfo) {
-        const akamaiInfo = getAkamaiInfo(request);
+    const akamaiOrigin = findServerTimingHeaderStartingWith("origin;", request);
+    if (akamaiOrigin) {
+      const akamaiOriginHost = getAkamaiOriginHostSystem(akamaiOrigin, request);
+      result.push(akamaiOriginHost);
+      const renderHost = getIsomorphicRenderHostSystem(request);
 
-        var graphqlGateways = getGraphQlGatewaySystems(request);
-        const grapholiths = getGrapholithGatewaySystems(request);
-
-        requestInfo.endTimeMs = request.timeStamp;
-        requestInfo.response = {
-          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-          akamaiInfo,
-          isoDuration: getIsoDurations(request),
-          hosts: [...graphqlGateways, ...grapholiths],
-        };
-
-        updatePageInsights(pageInsights);
+      if (renderHost) {
+        akamaiOriginHost.children.push(renderHost);
       }
-    });
+
+      const initialPropsHost = getIsomorphInitialPropsHostSystem(request);
+      if (initialPropsHost) {
+        akamaiOriginHost.children.push(initialPropsHost);
+
+        initialPropsHost.children.push(...graphqlGateways, ...grapholiths);
+      } else {
+        akamaiOriginHost.children.push(...graphqlGateways, ...grapholiths);
+      }
+    } else {
+      return [...graphqlGateways, ...grapholiths];
+    }
+    return [];
   }
 }

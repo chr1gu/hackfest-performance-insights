@@ -1,6 +1,7 @@
 import {
   GraphQlGatewayHostSystem,
   SubGraphQuery,
+  type HostSystem,
   type RequestType,
 } from "~shared/pageInsights";
 import {
@@ -116,25 +117,9 @@ export class GraphQLHandler implements RequestHandler {
     return "GraphQL";
   }
 
-  onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
-    getPageInsights((pageInsights) => {
-      const requestInfo = pageInsights.requests.find(
-        (req) => req.requestId === request.requestId
-      );
-
-      if (requestInfo) {
-        const akamaiInfo = getAkamaiInfo(request);
-
-        requestInfo.endTimeMs = request.timeStamp;
-
-        requestInfo.response = {
-          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-          akamaiInfo,
-          isoDuration: getIsoDurations(request),
-          hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
-        };
-        updatePageInsights(pageInsights);
-      }
-    });
+  getHostSystems(
+    request: chrome.webRequest.WebResponseHeadersDetails
+  ): HostSystem[] {
+    return getGraphQlGatewaySystems(request);
   }
 }

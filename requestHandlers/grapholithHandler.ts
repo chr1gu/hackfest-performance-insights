@@ -1,11 +1,9 @@
-import { GrapholithHostSystem, type RequestType } from "~shared/pageInsights";
 import {
-  getAkamaiInfo,
-  getIsoDurations,
-  type RequestHandler,
-} from "./requestHandler";
-import { getPageInsights, updatePageInsights } from "~shared/storage";
-import { get } from "http";
+  GrapholithHostSystem,
+  type HostSystem,
+  type RequestType,
+} from "~shared/pageInsights";
+import { type RequestHandler } from "./requestHandler";
 
 // 'server-timing', value: 'dg-trace-gql-grapholith;description=get-brand-like;dur=7'}
 // 'server-timing', value: 'dg-trace-gql-grapholith;description=get-brand-initialprops;dur=17'}
@@ -61,25 +59,9 @@ export class GrapholithHandler implements RequestHandler {
     return "Grapholith";
   }
 
-  onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
-    getPageInsights((pageInsights) => {
-      const requestInfo = pageInsights.requests.find(
-        (req) => req.requestId === request.requestId
-      );
-
-      if (requestInfo) {
-        const akamaiInfo = getAkamaiInfo(request);
-        requestInfo.endTimeMs = request.timeStamp;
-
-        requestInfo.response = {
-          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-          akamaiInfo,
-          isoDuration: getIsoDurations(request),
-          hosts: getGrapholithGatewaySystems(request), // This can be populated with more detailed host information if needed
-        };
-
-        updatePageInsights(pageInsights);
-      }
-    });
+  getHostSystems(
+    request: chrome.webRequest.WebResponseHeadersDetails
+  ): HostSystem[] {
+    return getGrapholithGatewaySystems(request);
   }
 }

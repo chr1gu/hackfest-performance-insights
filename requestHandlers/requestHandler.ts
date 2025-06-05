@@ -1,5 +1,6 @@
 import type {
   AkamaiInfo,
+  HostSystem,
   IsoDurations,
   RequestType,
 } from "~shared/pageInsights";
@@ -135,5 +136,7 @@ export interface RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean;
   getName(request: chrome.webRequest.WebRequestDetails): string;
   getType(): RequestType;
-  onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void;
+  getHostSystems(
+    request: chrome.webRequest.WebResponseHeadersDetails
+  ): HostSystem[];
 }
