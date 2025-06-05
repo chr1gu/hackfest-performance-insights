@@ -48,14 +48,17 @@ export const PerformanceInsightDetail: FunctionComponent<
         overflowY: "auto",
       }}
     >
-      <h2 style={{ marginTop: 0 }}>{request.name}</h2>
-      <div style={{ display: "flex", gap: "4px" }}>
-        <DataDogLink href="yolo">Service</DataDogLink>
-        {resourceLink && (
-          <DataDogLink href={resourceLink}>Resource</DataDogLink>
-        )}
-        <DataDogLink href="yolo">Trace</DataDogLink>
-      </div>
+      <h2 style={{ marginTop: 0, display: "flex" }}>
+        {request.name}
+        <span style={{ display: "flex", gap: "4px", marginLeft: "auto" }}>
+          <DataDogLink href="yolo">Service</DataDogLink>
+          {resourceLink && (
+            <DataDogLink href={resourceLink}>Resource</DataDogLink>
+          )}
+          <DataDogLink href="yolo">Trace</DataDogLink>
+        </span>
+      </h2>
+      <div></div>
       {(request.completed && <FlameGraph request={request} />) || (
         <p style={{ color: "gray" }}>
           No flame graph available for pending requests.

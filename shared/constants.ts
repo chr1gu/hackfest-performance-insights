@@ -5,5 +5,6 @@ export const pragmaHeaderValues = [
   "dg-trace-gql-subgraph",
   "dg-trace-gql-grapholith",
   "dg-trace-frontend",
+  "dg-trace-authentication",
   "dg-akamai-bc",
 ];
