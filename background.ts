@@ -7,6 +7,7 @@ import { getTracingKey } from "~shared/storage";
 import type { RequestHandler } from "~requestHandlers/requestHandler";
 import { GraphQLHandler } from "~requestHandlers/graphqlHandler";
 import { MainFrameHandler } from "~requestHandlers/mainFrameHandler";
+import { GrapholithHandler } from "~requestHandlers/grapholithHandler";
 
 const addDebugHeadersToRequests = async () => {
   const tracingKey = await getTracingKey();
@@ -80,6 +81,7 @@ chrome.storage.onChanged.addListener(async (changes, namespace) => {
 const requestHandlers: RequestHandler[] = [
   new MainFrameHandler(),
   new GraphQLHandler(),
+  new GrapholithHandler(),
 ];
 
 chrome.webRequest.onCompleted.addListener(
