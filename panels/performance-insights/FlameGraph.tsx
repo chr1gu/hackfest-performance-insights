@@ -10,9 +10,82 @@ import {
 } from "~shared/pageInsights";
 import React from "react";
 import { colorMap, type Infrastructure } from "./colors";
+import { get } from "http";
 
 interface FlameGraphProps {
   request: PageInsightRequest;
+}
+
+interface Span {
+  type: Infrastructure;
+  durationInPercent: number;
+  offset: number;
+  percent: number;
+}
+
+interface RowData {
+  queryName: string;
+  subGraphName?: string;
+  spans: Span[];
+}
+
+function getQueryName(hosts: HostSystem[]): string {
+  if (hosts[0].type === "AkamaiHostSystem") {
+    return "Akamai";
+  } else if (hosts[0].type === "GraphQLGateway") {
+    return (
+      (hosts[0] as GraphQlGatewayHostSystem).queryName || "GraphQL Gateway"
+    );
+  } else if (hosts[0].type === "Grapholith") {
+    return (hosts[0] as GrapholithHostSystem).queryName || "Grapholith";
+  } else if (hosts[0].type === "IsomorphHostSystem") {
+    return "Isomorph";
+  }
+
+  return "Unknown";
+}
+
+function getSubGraphName(hosts: HostSystem[]): string {
+  if (hosts[0].type === "AkamaiHostSystem") {
+    return "";
+  } else if (hosts[0].type === "GraphQLGateway") {
+    return (
+      (hosts[0] as GraphQlGatewayHostSystem).queryName || "GraphQL Gateway"
+    );
+  } else if (hosts[0].type === "Grapholith") {
+    return (hosts[0] as GrapholithHostSystem).queryName || "Grapholith";
+  } else if (hosts[0].type === "IsomorphHostSystem") {
+    return "";
+  }
+
+  return "Unknown";
+}
+
+function getRows(rows: RowData[], hosts: HostSystem[], baseOffset: number) {
+  if (hosts.length === 0) {
+    return;
+  }
+
+  const row: RowData = {
+    queryName: getQueryName(hosts),
+    subGraphName: getSubGraphName(hosts),
+    spans: [],
+  };
+
+  rows.push(row);
+
+  for (const host of hosts) {
+    row.spans.push({
+      type: host.type as Infrastructure,
+      durationInPercent: (host.duration / 1000) * 100,
+      offset: (baseOffset / 1000) * 100,
+      percent: (host.duration / 1000) * 100,
+    });
+
+    if (host.children && host.children.length > 0) {
+      getRows(rows, host.children, baseOffset + host.duration);
+    }
+  }
 }
 
 export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
@@ -20,65 +93,37 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
     return null;
   }
 
-  let baseOffset = request.response.akamaiInfo.edgeDuration;
-  const totalDuration = request.response.totalDuration;
+  const rows: RowData[] = [];
+  getRows(rows, request.response.hosts, 0);
 
+  console.log("FlameGraph rows", request.response.hosts, rows);
+  //let baseOffset = request.response.akamaiInfo.edgeDuration;
+  const totalDuration = request.response.totalDuration;
+  const baseOffset = 0;
   return (
     <table style={{ width: "100%", borderCollapse: "collapse" }}>
       <tbody>
-        <tr>
-          <th style={thStyles} colSpan={2}>
-            Akamai
-          </th>
-          <td style={tdStyles}>
-            <TimeSpan
-              duration={request.response.akamaiInfo.edgeDuration}
-              durationInPercent={
-                (request.response.akamaiInfo.edgeDuration / totalDuration) * 100
-              }
-              offset={0}
-              type="Akamai"
-            />
-            <TimeSpan
-              duration={request.response.akamaiInfo.originDuration}
-              durationInPercent={
-                (request.response.akamaiInfo.originDuration / totalDuration) *
-                100
-              }
-              offset={0}
-              type="Akamai"
-            />
-          </td>
-        </tr>
-        {request.response.isoDuration && (
-          <tr>
-            <th style={thStyles} colSpan={2}>
-              Isomorph
-            </th>
-            <td style={tdStyles}>
-              <TimeSpan
-                duration={request.response.isoDuration.getInitialProps}
-                durationInPercent={
-                  (request.response.isoDuration.getInitialProps /
-                    totalDuration) *
-                  100
-                }
-                offset={(baseOffset / totalDuration) * 100}
-                type="Frontend"
-                title="getInitialProps"
-              />
-              <TimeSpan
-                duration={request.response.isoDuration.render}
-                durationInPercent={
-                  (request.response.isoDuration.render / totalDuration) * 100
-                }
-                offset={0}
-                type="Frontend"
-                title="render"
-              />
-            </td>
-          </tr>
-        )}
+        {rows.map((row, index) => {
+          return (
+            <tr key={index}>
+              <th style={thStyles}>{row.queryName}</th>
+              <th style={thStyles}>{row.subGraphName}</th>
+              <td style={tdStyles}>
+                {row.spans.map((span, spanIndex) => (
+                  <TimeSpan
+                    key={spanIndex}
+                    duration={span.durationInPercent}
+                    durationInPercent={span.durationInPercent}
+                    offset={span.offset}
+                    type={span.type}
+                    title={row.queryName}
+                  />
+                ))}
+              </td>
+            </tr>
+          );
+        })}
+
         {request.response.hosts.map((host, index) => {
           if (isGrapholithHostSystem(host)) {
             return (
@@ -179,7 +224,15 @@ const TimeSpan: FunctionComponent<TimeSpanProps> = ({
   type,
   title,
 }) => {
-  const colors = colorMap[type];
+  let colors = colorMap[type];
+  if (!colors) {
+    colors = {
+      color: "black",
+      backgroundColor: "lightgray",
+      borderColor: "gray",
+    };
+  }
+
   return (
     <span
       style={{

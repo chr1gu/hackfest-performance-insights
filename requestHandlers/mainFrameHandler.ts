@@ -58,20 +58,27 @@ export class MainFrameHandler implements RequestHandler {
       const renderHost = getIsomorphicRenderHostSystem(request);
 
       if (renderHost) {
+        akamaiOriginHost.children = akamaiOriginHost.children =
+          akamaiOriginHost.children || [];
         akamaiOriginHost.children.push(renderHost);
       }
 
       const initialPropsHost = getIsomorphInitialPropsHostSystem(request);
       if (initialPropsHost) {
+        akamaiOriginHost.children = akamaiOriginHost.children || [];
         akamaiOriginHost.children.push(initialPropsHost);
 
+        initialPropsHost.children = initialPropsHost.children || [];
         initialPropsHost.children.push(...graphqlGateways, ...grapholiths);
       } else {
+        akamaiOriginHost.children = akamaiOriginHost.children || [];
+
         akamaiOriginHost.children.push(...graphqlGateways, ...grapholiths);
       }
     } else {
-      return [...graphqlGateways, ...grapholiths];
+      result.push(...graphqlGateways, ...grapholiths);
     }
-    return [];
+
+    return result;
   }
 }

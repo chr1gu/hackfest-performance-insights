@@ -1,8 +1,4 @@
-import type {
-  AkamaiHostSystem,
-  AkamaiOriginHostSystem,
-  HostSystem,
-} from "~shared/pageInsights";
+import { AkamaiHostSystem } from "~shared/pageInsights";
 import { getDuration } from "./serverTimingHelpers";
 import { get } from "http";
 
@@ -46,21 +42,18 @@ export function getAkamaiEdgeHostSystem(
   akamaiHeaderValue: string,
   request: chrome.webRequest.WebResponseHeadersDetails
 ): AkamaiHostSystem {
-  return {
-    type: "AkamaiHostSystem",
-    duration: getDuration(akamaiHeaderValue),
-    location: getAkamaiLocation(request, "edge") || "Unknown Location",
-  };
+  const system = new AkamaiHostSystem();
+  system.duration = getDuration(akamaiHeaderValue);
+  system.location = getAkamaiLocation(request, "edge") || "Unknown Location";
+  return system;
 }
 
 export function getAkamaiOriginHostSystem(
   akamaiHeaderValue: string,
   request: chrome.webRequest.WebResponseHeadersDetails
-): AkamaiOriginHostSystem {
-  return {
-    type: "AkamaiOriginHostSystem",
-    duration: getDuration(akamaiHeaderValue),
-    location: getAkamaiLocation(request, "cache") || "Unknown Location",
-    children: [],
-  };
+): AkamaiHostSystem {
+  const system = new AkamaiHostSystem();
+  system.duration = getDuration(akamaiHeaderValue);
+  system.location = getAkamaiLocation(request, "cache") || "Unknown Location";
+  return system;
 }

@@ -1,11 +1,7 @@
 // {name: 'server-timing', value: 'iso; desc=render; dur=29'}
 // {name: 'server-timing', value: 'iso; desc=getInitialProps; dur=198'}
 
-import {
-  IsomorphInitialPropsHostSystem,
-  IsomorphRenderHostSystem,
-  type IsoDurations,
-} from "~shared/pageInsights";
+import { IsomorphHostSystem, type IsoDurations } from "~shared/pageInsights";
 
 // {name: 'server-timing', value: 'iso; desc=total; dur=227'}
 function getIsoDurations(
@@ -51,28 +47,28 @@ function getIsoDurations(
 
 export function getIsomorphicRenderHostSystem(
   request: chrome.webRequest.WebResponseHeadersDetails
-): IsomorphRenderHostSystem | null {
+): IsomorphHostSystem | null {
   const durations = getIsoDurations(request);
 
   if (!durations) {
     return null;
   }
 
-  const system = new IsomorphRenderHostSystem();
+  const system = new IsomorphHostSystem();
   system.duration = durations.render;
   return system;
 }
 
 export function getIsomorphInitialPropsHostSystem(
   request: chrome.webRequest.WebResponseHeadersDetails
-): IsomorphInitialPropsHostSystem | null {
+): IsomorphHostSystem | null {
   const durations = getIsoDurations(request);
 
   if (!durations) {
     return null;
   }
 
-  const system = new IsomorphInitialPropsHostSystem();
+  const system = new IsomorphHostSystem();
   system.duration = durations.render;
 
   return system;

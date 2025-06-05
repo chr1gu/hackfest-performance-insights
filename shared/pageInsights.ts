@@ -26,37 +26,31 @@ export interface PageInsightResponse {
 
 export type HostSystemType =
   | "AkamaiHostSystem"
-  | "AkamaiOriginHostSystem"
-  | "IsomorphRenderHostSystem"
-  | "IsomorphInitialPropsHostSystem"
+  | "IsomorphHostSystem"
   | "GraphQLGateway"
   | "Grapholith";
 
 export interface HostSystem {
   type: HostSystemType;
+  name: string;
   duration: number;
+  children?: HostSystem[];
 }
 
 export class AkamaiHostSystem implements HostSystem {
   type: HostSystemType = "AkamaiHostSystem";
+  name: string = "";
   duration: number = 0;
   location: string | undefined = undefined;
+  children?: HostSystem[] | undefined = undefined;
 }
 
-export class AkamaiOriginHostSystem extends AkamaiHostSystem {
-  type: HostSystemType = "AkamaiOriginHostSystem";
-  children: HostSystem[] = [];
-}
+export class IsomorphHostSystem implements HostSystem {
+  type: HostSystemType = "IsomorphHostSystem";
+  name: string = "";
 
-export class IsomorphRenderHostSystem implements HostSystem {
-  type: HostSystemType = "IsomorphRenderHostSystem";
   duration: number = 0;
-}
-
-export class IsomorphInitialPropsHostSystem implements HostSystem {
-  type: HostSystemType = "IsomorphInitialPropsHostSystem";
-  duration: number = 0;
-  children: HostSystem[] = [];
+  children?: HostSystem[] | undefined = undefined;
 }
 
 export interface AkamaiInfo {
@@ -68,6 +62,7 @@ export interface AkamaiInfo {
 
 export class GraphQlGatewayHostSystem implements HostSystem {
   type: HostSystemType = "GraphQLGateway";
+  name: string = "GraphQL Gateway";
   queryName: string = "Unknown gateway query";
   duration: number = 0;
   subGraphQueries?: SubGraphQuery[] = [];
@@ -75,6 +70,7 @@ export class GraphQlGatewayHostSystem implements HostSystem {
 
 export class GrapholithHostSystem implements HostSystem {
   type: HostSystemType = "Grapholith";
+  name: string = "Grapholith";
   queryName: string = "Unknown gateway query";
   duration: number = 0;
 }
