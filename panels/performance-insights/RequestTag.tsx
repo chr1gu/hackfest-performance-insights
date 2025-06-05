@@ -19,6 +19,11 @@ const colorMap: Record<
     backgroundColor: "#fa5252",
     borderColor: "#e03131",
   },
+  Grapholith: {
+    color: "#fff",
+    backgroundColor: "#52e4fa",
+    borderColor: "#3177e0",
+  },
 };
 
 export const RequestTag: FunctionComponent<RequestTagProps> = ({ tag }) => {
