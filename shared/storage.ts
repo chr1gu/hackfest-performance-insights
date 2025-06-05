@@ -33,6 +33,7 @@ export function getPageInsights(
 
 export function updatePageInsights(pageInsights: PageInsights) {
   sessionStorage.set(pageInsightsKey, pageInsights);
+  console.log("Page insights updated:", pageInsights);
 }
 
 const syncStorage = new Storage({

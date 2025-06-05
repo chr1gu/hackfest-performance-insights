@@ -53,9 +53,9 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
             </th>
             <td style={tdStyles}>
               <TimeSpan
-                duration={request.response.isoDuration}
+                duration={request.response.isoDuration.total}
                 durationInPercent={
-                  (request.response.isoDuration / totalDuration) * 100
+                  (request.response.isoDuration.total / totalDuration) * 100
                 }
                 offset={(baseOffset / totalDuration) * 100}
                 type="Frontend"
