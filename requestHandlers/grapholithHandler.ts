@@ -7,9 +7,11 @@ import {
 import {
   findServerTimingHeader,
   getAkamaiInfo,
+  getIsoDuration,
   type RequestHandler,
 } from "./requestHandler";
 import { getPageInsights, updatePageInsights } from "~shared/storage";
+import { get } from "http";
 
 // 'server-timing', value: 'dg-trace-gql-grapholith;description=get-brand-like;dur=7'}
 // 'server-timing', value: 'dg-trace-gql-grapholith;description=get-brand-initialprops;dur=17'}
@@ -85,6 +87,7 @@ export class GrapholithHandler implements RequestHandler {
           requestInfo.response = {
             totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
             akamaiInfo,
+            isoDuration: getIsoDuration(request),
             hosts: getGrapholithGatewaySystems(request), // This can be populated with more detailed host information if needed
           };
         }

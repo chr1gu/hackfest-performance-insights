@@ -28,6 +28,7 @@ export type PageInsightRequest =
 export interface PageInsightResponse {
   totalDuration: number;
   akamaiInfo: AkamaiInfo;
+  isoDuration: number | null;
   hosts: HostSystem[];
 }
 

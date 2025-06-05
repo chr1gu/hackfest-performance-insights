@@ -1,5 +1,9 @@
 import { type PageInsightRequest } from "~shared/pageInsights";
-import { getAkamaiInfo, type RequestHandler } from "./requestHandler";
+import {
+  getAkamaiInfo,
+  getIsoDuration,
+  type RequestHandler,
+} from "./requestHandler";
 import { getGraphQlGatewaySystems } from "./graphqlHandler";
 import { getPageInsights, updatePageInsights } from "~shared/storage";
 
@@ -42,6 +46,7 @@ export class MainFrameHandler implements RequestHandler {
           requestInfo.response = {
             totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
             akamaiInfo,
+            isoDuration: getIsoDuration(request),
             hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
           };
         }

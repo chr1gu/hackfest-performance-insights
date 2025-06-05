@@ -6,6 +6,7 @@ import {
 import {
   findServerTimingHeader,
   getAkamaiInfo,
+  getIsoDuration,
   type RequestHandler,
 } from "./requestHandler";
 import { getPageInsights, updatePageInsights } from "~shared/storage";
@@ -137,6 +138,7 @@ export class GraphQLHandler implements RequestHandler {
           requestInfo.response = {
             totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
             akamaiInfo,
+            isoDuration: getIsoDuration(request),
             hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
           };
         }
