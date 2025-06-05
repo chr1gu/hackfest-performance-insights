@@ -1,11 +1,5 @@
+import { GrapholithHostSystem, type RequestType } from "~shared/pageInsights";
 import {
-  GrapholithHostSystem,
-  GraphQlGatewayHostSystem,
-  SubGraphQuery,
-  type PageInsightRequest,
-} from "~shared/pageInsights";
-import {
-  findServerTimingHeader,
   getAkamaiInfo,
   getIsoDurations,
   type RequestHandler,
@@ -59,18 +53,12 @@ export class GrapholithHandler implements RequestHandler {
     );
   }
 
-  onBeforeSendHeaders(request: chrome.webRequest.WebRequestDetails): void {
-    getPageInsights((pageInsights) => {
-      const requestInfo: PageInsightRequest = {
-        name: request.url.split("/").pop() || "Grapholith Request",
-        type: "Grapholith",
-        requestId: request.requestId,
-        completed: false,
-      };
+  getName(request: chrome.webRequest.WebRequestDetails): string {
+    return request.url.split("/").pop() || "Grapholith Request";
+  }
 
-      pageInsights.requests.push(requestInfo);
-      updatePageInsights(pageInsights);
-    });
+  getType(): RequestType {
+    return "Grapholith";
   }
 
   onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
@@ -82,16 +70,12 @@ export class GrapholithHandler implements RequestHandler {
       if (requestInfo) {
         const akamaiInfo = getAkamaiInfo(request);
 
-        requestInfo.completed = true;
-        // This if statement is simply here as a lazy way to fix ts error
-        if (requestInfo.completed) {
-          requestInfo.response = {
-            totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-            akamaiInfo,
-            isoDuration: getIsoDurations(request),
-            hosts: getGrapholithGatewaySystems(request), // This can be populated with more detailed host information if needed
-          };
-        }
+        requestInfo.response = {
+          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+          akamaiInfo,
+          isoDuration: getIsoDurations(request),
+          hosts: getGrapholithGatewaySystems(request), // This can be populated with more detailed host information if needed
+        };
 
         updatePageInsights(pageInsights);
       }

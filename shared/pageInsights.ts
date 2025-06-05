@@ -1,29 +1,15 @@
-import { Storage } from "@plasmohq/storage";
-
 export interface PageInsights {
   requests: PageInsightRequest[];
 }
 
 export type RequestType = "Document" | "GraphQL" | "Grapholith";
 
-export interface UncompletePageInsightRequest {
-  name: string;
+export interface PageInsightRequest {
   type: RequestType;
-  requestId: string;
-  completed: false;
-}
-
-export interface CompletePageInsightRequest {
   name: string;
-  type: RequestType;
   requestId: string;
-  completed: true;
-  response: PageInsightResponse;
+  response?: PageInsightResponse;
 }
-
-export type PageInsightRequest =
-  | UncompletePageInsightRequest
-  | CompletePageInsightRequest;
 
 export interface IsoDurations {
   render: number;

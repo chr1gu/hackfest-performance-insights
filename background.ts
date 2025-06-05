@@ -3,11 +3,16 @@ import {
   pragmaHeaderValues,
   tracingHeaderKey,
 } from "./shared/constants";
-import { getTracingKey } from "~shared/storage";
+import {
+  getPageInsights,
+  getTracingKey,
+  updatePageInsights,
+} from "~shared/storage";
 import type { RequestHandler } from "~requestHandlers/requestHandler";
 import { GraphQLHandler } from "~requestHandlers/graphqlHandler";
 import { MainFrameHandler } from "~requestHandlers/mainFrameHandler";
 import { GrapholithHandler } from "~requestHandlers/grapholithHandler";
+import type { PageInsightRequest } from "~shared/pageInsights";
 
 const addDebugHeadersToRequests = async () => {
   const tracingKey = await getTracingKey();
@@ -84,6 +89,16 @@ const requestHandlers: RequestHandler[] = [
   new GrapholithHandler(),
 ];
 
+const urlPatterns = [
+  "https://www.galaxus.ch/*",
+  "https://www.galaxus.de/*",
+  "https://www.galaxus.at/*",
+  "https://www.galaxus.nl/*",
+  "https://www.galaxus.it/*",
+  "https://www.galaxus.be/*",
+  "https://*.digitec.ch/*",
+];
+
 chrome.webRequest.onCompleted.addListener(
   async (details) => {
     for (const handler of requestHandlers) {
@@ -97,7 +112,9 @@ chrome.webRequest.onCompleted.addListener(
       details
     );
   },
-  { urls: ["https://www.galaxus.ch/*"] },
+  {
+    urls: urlPatterns,
+  },
   ["responseHeaders"]
 );
 
@@ -105,9 +122,21 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   (details) => {
     for (const handler of requestHandlers) {
       if (handler.canHandleRequest(details)) {
-        handler.onBeforeSendHeaders(details);
+        getPageInsights((pageInsights) => {
+          // Update the page insights with the GraphQL request
+          const requestInfo: PageInsightRequest = {
+            name: handler.getName(details),
+            type: handler.getType(),
+            requestId: details.requestId,
+          };
+
+          pageInsights.requests.push(requestInfo);
+          updatePageInsights(pageInsights);
+        });
       }
     }
   },
-  { urls: ["https://www.galaxus.ch/*"] }
+  {
+    urls: urlPatterns,
+  }
 );
