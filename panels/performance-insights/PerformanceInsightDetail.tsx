@@ -22,6 +22,18 @@ export const PerformanceInsightDetail: FunctionComponent<
     return null;
   }
 
+  let serviceLink: string | undefined;
+  if (request.type === "Document") {
+    serviceLink =
+      "https://app.datadoghq.eu/apm/entity/service%3Afrontend?env=prod&operationName=next.request";
+  } else if (request.type === "GraphQL") {
+    serviceLink =
+      "https://app.datadoghq.eu/apm/entity/service%3Adg.graphqlgateway.host?env=prod";
+  } else if (request.type === "Grapholith") {
+    serviceLink =
+      "https://app.datadoghq.eu/apm/entity/service%3Agraphql?env=prod";
+  }
+
   let resourceLink: string | undefined;
   if (request.type === "GraphQL" && request.completed) {
     const queryName = (
@@ -51,7 +63,7 @@ export const PerformanceInsightDetail: FunctionComponent<
       <h2 style={{ marginTop: 0, display: "flex" }}>
         {request.name}
         <span style={{ display: "flex", gap: "4px", marginLeft: "auto" }}>
-          <DataDogLink href="yolo">Service</DataDogLink>
+          {serviceLink && <DataDogLink href={serviceLink}>Service</DataDogLink>}
           {resourceLink && (
             <DataDogLink href={resourceLink}>Resource</DataDogLink>
           )}
