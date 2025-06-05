@@ -19,6 +19,8 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
   let baseOffset = request.response.akamaiInfo.edgeDuration;
   const totalDuration = request.response.totalDuration;
 
+  console.log(request.response.isoDuration);
+
   return (
     <table style={{ width: "100%", borderCollapse: "collapse" }}>
       <tbody>
@@ -34,6 +36,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
               }
               offset={0}
               type="Akamai"
+              title="Edge"
             />
             <TimeSpan
               duration={request.response.akamaiInfo.originDuration}
@@ -43,6 +46,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
               }
               offset={0}
               type="Akamai"
+              title="Origin"
             />
           </td>
         </tr>
@@ -53,12 +57,24 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
             </th>
             <td style={tdStyles}>
               <TimeSpan
-                duration={request.response.isoDuration.total}
+                duration={request.response.isoDuration.getInitialProps}
                 durationInPercent={
-                  (request.response.isoDuration.total / totalDuration) * 100
+                  (request.response.isoDuration.getInitialProps /
+                    totalDuration) *
+                  100
                 }
                 offset={(baseOffset / totalDuration) * 100}
                 type="Frontend"
+                title="getInitialProps"
+              />
+              <TimeSpan
+                duration={request.response.isoDuration.render}
+                durationInPercent={
+                  (request.response.isoDuration.render / totalDuration) * 100
+                }
+                offset={0}
+                type="Frontend"
+                title="render"
               />
             </td>
           </tr>
@@ -153,6 +169,7 @@ interface TimeSpanProps {
   durationInPercent: number;
   offset: number;
   type: Infrastructure;
+  title?: string;
 }
 
 const TimeSpan: FunctionComponent<TimeSpanProps> = ({
@@ -160,6 +177,7 @@ const TimeSpan: FunctionComponent<TimeSpanProps> = ({
   durationInPercent: duration,
   offset,
   type,
+  title,
 }) => {
   const colors = colorMap[type];
   return (
@@ -192,6 +210,7 @@ const TimeSpan: FunctionComponent<TimeSpanProps> = ({
         }}
       >
         {time}ms
+        {title && " " + title}
       </span>
     </span>
   );
