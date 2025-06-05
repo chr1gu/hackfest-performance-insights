@@ -132,23 +132,34 @@ const TimeSpan: FunctionComponent<TimeSpanProps> = ({
     <span
       style={{
         display: "block",
+        position: "relative",
         marginLeft: `calc(${offset}% + 2px)`,
         marginRight: "2px",
+        marginBottom: "8px",
         width: `calc(${duration}% - 4px)`,
         minWidth: "18px",
-        height: "24px",
+        height: "14px",
         backgroundColor: colors.backgroundColor,
         float: "left",
-        fontSize: "14px",
-        color: colors.color,
-        textAlign: "center",
+        fontSize: "12px",
+        // color: colors.color,
+        color: "black",
         lineHeight: "24px",
         borderRadius: "2px",
         letterSpacing: "0.01em",
       }}
       title={`${time}ms`}
     >
-      {time}ms
+      <span
+        style={{
+          position: "absolute",
+          marginTop: "-5px",
+          top: "100%",
+          left: "0",
+        }}
+      >
+        {time}ms
+      </span>
     </span>
   );
 };
