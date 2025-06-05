@@ -1,5 +1,5 @@
 import { get } from "http";
-import type { AkamaiInfo } from "~shared/pageInsights";
+import type { AkamaiInfo, IsoDurations } from "~shared/pageInsights";
 
 export function findServerTimingHeader(
   request: chrome.webRequest.WebResponseHeadersDetails,
@@ -70,16 +70,48 @@ function getAkamaiLocation(
   return result;
 }
 
-// {name: 'server-timing', value: 'iso; dur=281'}
-export function getIsoDuration(
+// {name: 'server-timing', value: 'iso; desc=render; dur=29'}
+// {name: 'server-timing', value: 'iso; desc=getInitialProps; dur=198'}
+// {name: 'server-timing', value: 'iso; desc=total; dur=227'}
+export function getIsoDurations(
   request: chrome.webRequest.WebResponseHeadersDetails
-): number | null {
-  const isoDuration = findServerTimingHeader(request, "iso")?.replace(
-    "iso; dur=",
-    ""
-  );
+): IsoDurations | null {
+  const isoDurations: IsoDurations = {
+    render: 0,
+    getInitialProps: 0,
+    total: 0,
+  };
 
-  return isoDuration ? parseInt(isoDuration) : null;
+  request.responseHeaders
+    ?.filter(
+      (header) =>
+        header.name.toLowerCase() === "server-timing" &&
+        header.value?.startsWith("iso;")
+    )
+    .forEach((header) => {
+      if (header.value) {
+        const parts = header.value.split("; ");
+        const durPart = parts.find((part) => part.startsWith("dur="));
+        const duration = durPart ? parseInt(durPart.replace("dur=", "")) : 0;
+        const descPart = parts.find((part) => part.startsWith("desc="));
+        const description = descPart
+          ? descPart.replace("desc=", "").trim()
+          : "";
+        if (description === "render") {
+          isoDurations.render = duration;
+        } else if (description === "getInitialProps") {
+          isoDurations.getInitialProps = duration;
+        } else if (description === "total") {
+          isoDurations.total = duration;
+        }
+      }
+    });
+
+  return isoDurations.getInitialProps !== 0 ||
+    isoDurations.render !== 0 ||
+    isoDurations.total !== 0
+    ? isoDurations
+    : null;
 }
 
 export function getAkamaiInfo(

@@ -25,10 +25,16 @@ export type PageInsightRequest =
   | UncompletePageInsightRequest
   | CompletePageInsightRequest;
 
+export interface IsoDurations {
+  render: number;
+  getInitialProps: number;
+  total: number;
+}
+
 export interface PageInsightResponse {
   totalDuration: number;
   akamaiInfo: AkamaiInfo;
-  isoDuration: number | null;
+  isoDuration: IsoDurations | null;
   hosts: HostSystem[];
 }
 

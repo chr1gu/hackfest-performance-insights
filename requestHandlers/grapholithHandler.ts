@@ -7,7 +7,7 @@ import {
 import {
   findServerTimingHeader,
   getAkamaiInfo,
-  getIsoDuration,
+  getIsoDurations,
   type RequestHandler,
 } from "./requestHandler";
 import { getPageInsights, updatePageInsights } from "~shared/storage";
@@ -87,7 +87,7 @@ export class GrapholithHandler implements RequestHandler {
           requestInfo.response = {
             totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
             akamaiInfo,
-            isoDuration: getIsoDuration(request),
+            isoDuration: getIsoDurations(request),
             hosts: getGrapholithGatewaySystems(request), // This can be populated with more detailed host information if needed
           };
         }
