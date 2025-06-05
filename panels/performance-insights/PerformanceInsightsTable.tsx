@@ -74,12 +74,16 @@ export const PerformanceInsightsTable: FunctionComponent<
             {requests.map((request) => {
               let gatewayInvocations = 0;
               let subgraphInvocations = 0;
+              let grapholithInvocations = 0;
               if (request.completed) {
                 const hosts = (request as CompletePageInsightRequest).response
                   .hosts;
                 for (const host of hosts) {
                   if (host.name === "GraphQL Gateway") {
                     gatewayInvocations++;
+                  }
+                  if (host.type === "Grapholith") {
+                    grapholithInvocations++;
                   }
                   const subGraphQueries =
                     (host as GraphQlGatewayHostSystem).subGraphQueries || [];
@@ -141,6 +145,10 @@ export const PerformanceInsightsTable: FunctionComponent<
                           <InfrastructureTag
                             tag="Subgraph"
                             count={subgraphInvocations}
+                          />
+                          <InfrastructureTag
+                            tag="Grapholith"
+                            count={grapholithInvocations}
                           />
                           <InfrastructureTag tag="Database" count={0} />
                         </InfrastructureTags>
