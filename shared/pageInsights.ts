@@ -4,7 +4,7 @@ export interface PageInsights {
   requests: PageInsightRequest[];
 }
 
-export type RequestType = "Document" | "GraphQL";
+export type RequestType = "Document" | "GraphQL" | "Grapholith";
 
 export interface UncompletePageInsightRequest {
   name: string;
@@ -28,6 +28,7 @@ export type PageInsightRequest =
 export interface PageInsightResponse {
   totalDuration: number;
   akamaiInfo: AkamaiInfo;
+  isoDuration: number | null;
   hosts: HostSystem[];
 }
 
@@ -38,7 +39,7 @@ export interface AkamaiInfo {
   originDuration: number;
 }
 
-export type HostSystemType = "GraphQLGateway" | "SubGraph";
+export type HostSystemType = "GraphQLGateway" | "Grapholith";
 
 export interface HostSystem {
   type: HostSystemType;
@@ -54,8 +55,14 @@ export class GraphQlGatewayHostSystem implements HostSystem {
   subGraphQueries?: SubGraphQuery[] = [];
 }
 
-export class SubGraphQuery implements HostSystem {
-  type: HostSystemType = "SubGraph";
+export class GrapholithHostSystem implements HostSystem {
+  type: HostSystemType = "Grapholith";
+  name: string = "Grapholith";
+  queryName: string = "Unknown gateway query";
+  duration: number | null = null;
+}
+
+export class SubGraphQuery {
   name: string = "Sub Graph";
   queryName: string = "Unknown sub-query";
   subGraphName: string = "";

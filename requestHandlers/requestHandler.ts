@@ -70,6 +70,18 @@ function getAkamaiLocation(
   return result;
 }
 
+// {name: 'server-timing', value: 'iso; dur=281'}
+export function getIsoDuration(
+  request: chrome.webRequest.WebResponseHeadersDetails
+): number | null {
+  const isoDuration = findServerTimingHeader(request, "iso")?.replace(
+    "iso; dur=",
+    ""
+  );
+
+  return isoDuration ? parseInt(isoDuration) : null;
+}
+
 export function getAkamaiInfo(
   request: chrome.webRequest.WebResponseHeadersDetails
 ): AkamaiInfo {
