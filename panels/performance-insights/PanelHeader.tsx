@@ -69,9 +69,8 @@ export const PanelHeader: FunctionComponent<PanelHeaderProps> = (props) => {
             display: "flex",
             alignItems: "center",
           }}
-          title="Fahrverbot"
+          title="Clear Cache"
           onClick={() => {
-            // Hier kann eine Aktion ausgeführt werden
             setPageInsights(() => ({
               requests: [],
             }));
