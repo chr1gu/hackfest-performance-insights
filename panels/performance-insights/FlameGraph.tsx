@@ -76,7 +76,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
                       ((host.duration || 0) / totalDuration) * 100
                     }
                     offset={(baseOffset / totalDuration) * 100}
-                    type="Gateway"
+                    type="Grapholith"
                   />
                 </td>
               </tr>
