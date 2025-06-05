@@ -12,7 +12,14 @@ export class MainFrameHandler implements RequestHandler {
     getPageInsights((pageInsights) => {
       // Update the page insights with the GraphQL request
       const requestInfo: PageInsightRequest = {
-        name: "Document Request",
+        name: (() => {
+          try {
+            const url = new URL(request.url);
+            return url.pathname;
+          } catch (error) {
+            return "Document Request";
+          }
+        })(),
         type: "Document",
         requestId: request.requestId,
         completed: false,

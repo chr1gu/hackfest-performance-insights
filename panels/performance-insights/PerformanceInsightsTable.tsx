@@ -50,7 +50,7 @@ export const PerformanceInsightsTable: FunctionComponent<
     <>
       <div
         style={{
-          padding: "0 20px 20px",
+          padding: "8px 20px 20px",
           position: "relative",
           flex: "1 1 auto",
           overflow: "auto",

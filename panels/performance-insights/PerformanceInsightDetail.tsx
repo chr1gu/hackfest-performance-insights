@@ -2,6 +2,7 @@ import type { FunctionComponent } from "~node_modules/@types/react";
 import { useMemo } from "react";
 import { usePageInsightsStorage } from "~shared/storage";
 import { FlameGraph } from "./FlameGraph";
+import { DataDogLink } from "./DataDogLink";
 
 interface PerformanceInsightDetailProps {
   requestId: string;
@@ -24,34 +25,25 @@ export const PerformanceInsightDetail: FunctionComponent<
     <div
       style={{
         flex: "0 1 auto",
-        minHeight: "max(150px, 30%)",
-        maxHeight: "70%",
+        height: "60%",
         backgroundColor: "#fdfdfd",
         borderTop: "1px solid rgb(221, 221, 221)",
         zIndex: 100,
         padding: "20px 20px 40px",
+        overflowY: "auto",
       }}
     >
-      <h2 style={{ marginTop: 0 }}>Performance Insight Detail</h2>
-      {request.completed && <FlameGraph request={request} />}
-      <p>Request ID: {request.requestId}</p>
-      <p>Request Name: {request.name}</p>
-      <strong>{request.name}</strong> -{" "}
-      {request.completed ? "Completed" : "Pending"}
-      <br />
-      Request ID: {request.requestId}
-      {(request.completed && (
-        <>
-          <br />
-          Total Duration: {request.response?.totalDuration || "N/A"} ms
-          <br />
-          Akamai Info: edge {request.response?.akamaiInfo.edgeDuration ||
-            "N/A"}{" "}
-          ms , origin {request.response?.akamaiInfo.originDuration || "N/A"} ms
-          <br />
-          Hosts: {request.response?.hosts.map((host) => host.name).join(", ")}
-        </>
-      )) || <p>Pending</p>}
+      <h2 style={{ marginTop: 0 }}>{request.name}</h2>
+      <div style={{ display: "flex", gap: "4px" }}>
+        <DataDogLink href="yolo">Service</DataDogLink>
+        <DataDogLink href="yolo">Resource</DataDogLink>
+        <DataDogLink href="yolo">Trace</DataDogLink>
+      </div>
+      {(request.completed && <FlameGraph request={request} />) || (
+        <p style={{ color: "gray" }}>
+          No flame graph available for pending requests.
+        </p>
+      )}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
   type HostSystem,
 } from "~shared/pageInsights";
 import React from "react";
+import { colorMap, type Infrastructure } from "./colors";
 
 interface FlameGraphProps {
   request: CompletePageInsightRequest;
@@ -16,8 +17,6 @@ interface FlameGraphProps {
 export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
   let baseOffset = request.response.akamaiInfo.edgeDuration;
   const totalDuration = request.response.totalDuration;
-
-  console.dir(request.response);
 
   return (
     <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -33,6 +32,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
                 (request.response.akamaiInfo.edgeDuration / totalDuration) * 100
               }
               offset={0}
+              type="Akamai"
             />
             <TimeSpan
               duration={request.response.akamaiInfo.originDuration}
@@ -41,6 +41,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
                 100
               }
               offset={0}
+              type="Akamai"
             />
           </td>
         </tr>
@@ -55,7 +56,6 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
 
           return (
             <React.Fragment key={index}>
-              {/* If the host is a GraphQL gateway, we need to adjust the base offset */}
               <tr key={index}>
                 <th style={thStyles}>{host.queryName}</th>
                 <th style={thStyles}>{host.name}</th>
@@ -66,6 +66,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
                       ((host.duration || 0) / totalDuration) * 100
                     }
                     offset={(baseOffset / totalDuration) * 100}
+                    type="Gateway"
                   />
                 </td>
               </tr>
@@ -92,6 +93,7 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
                                 ((subQuery.duration || 0) / totalDuration) * 100
                               }
                               offset={subQueryOffset}
+                              type="Subgraph"
                             />
                           </td>
                         </tr>
@@ -116,13 +118,16 @@ interface TimeSpanProps {
   duration: number;
   durationInPercent: number;
   offset: number;
+  type: Infrastructure;
 }
 
 const TimeSpan: FunctionComponent<TimeSpanProps> = ({
   duration: time,
   durationInPercent: duration,
   offset,
+  type,
 }) => {
+  const colors = colorMap[type];
   return (
     <span
       style={{
@@ -132,10 +137,10 @@ const TimeSpan: FunctionComponent<TimeSpanProps> = ({
         width: `calc(${duration}% - 4px)`,
         minWidth: "18px",
         height: "24px",
-        backgroundColor: "#228be6",
+        backgroundColor: colors.backgroundColor,
         float: "left",
         fontSize: "14px",
-        color: "#fff",
+        color: colors.color,
         textAlign: "center",
         lineHeight: "24px",
         borderRadius: "2px",
