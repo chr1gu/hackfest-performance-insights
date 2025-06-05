@@ -69,6 +69,7 @@ export class GrapholithHandler implements RequestHandler {
 
       if (requestInfo) {
         const akamaiInfo = getAkamaiInfo(request);
+        requestInfo.endTimeMs = request.timeStamp;
 
         requestInfo.response = {
           totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,

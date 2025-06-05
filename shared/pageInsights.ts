@@ -8,6 +8,8 @@ export interface PageInsightRequest {
   type: RequestType;
   name: string;
   requestId: string;
+  startTimeMs: number;
+  endTimeMs?: number;
   response?: PageInsightResponse;
 }
 
@@ -21,8 +23,13 @@ export interface PageInsightResponse {
   totalDuration: number;
   akamaiInfo: AkamaiInfo;
   isoDuration: IsoDurations | null;
+
   hosts: HostSystem[];
 }
+
+export type HostSystemType = "GraphQLGateway" | "Grapholith";
+
+export interface AkamaiHostSystem {}
 
 export interface AkamaiInfo {
   edgeDuration: number;
@@ -30,8 +37,6 @@ export interface AkamaiInfo {
   cacheLocation: string | undefined;
   originDuration: number;
 }
-
-export type HostSystemType = "GraphQLGateway" | "Grapholith";
 
 export interface HostSystem {
   type: HostSystemType;

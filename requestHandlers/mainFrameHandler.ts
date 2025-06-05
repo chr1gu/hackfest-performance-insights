@@ -41,6 +41,7 @@ export class MainFrameHandler implements RequestHandler {
         var graphqlGateways = getGraphQlGatewaySystems(request);
         const grapholiths = getGrapholithGatewaySystems(request);
 
+        requestInfo.endTimeMs = request.timeStamp;
         requestInfo.response = {
           totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
           akamaiInfo,

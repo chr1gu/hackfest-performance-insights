@@ -90,12 +90,12 @@ const requestHandlers: RequestHandler[] = [
 ];
 
 const urlPatterns = [
-  "https://www.galaxus.ch/*",
-  "https://www.galaxus.de/*",
-  "https://www.galaxus.at/*",
-  "https://www.galaxus.nl/*",
-  "https://www.galaxus.it/*",
-  "https://www.galaxus.be/*",
+  "https://*.galaxus.ch/*",
+  "https://*.galaxus.de/*",
+  "https://*.galaxus.at/*",
+  "https://*.galaxus.nl/*",
+  "https://*.galaxus.it/*",
+  "https://*.galaxus.be/*",
   "https://*.digitec.ch/*",
 ];
 
@@ -104,12 +104,18 @@ chrome.webRequest.onCompleted.addListener(
     for (const handler of requestHandlers) {
       if (handler.canHandleRequest(details)) {
         handler.onCompleted(details);
+        break; // Exit the loop after handling the first matching handler
       }
     }
 
+    const now = Date.now();
+    const diffMs = Math.round(now - details.timeStamp); // difference in ms
+    console.log(" --- end time " + details.requestId, details.timeStamp);
+
     console.log(
       `Request completed: ${details.url} with status code ${details.statusCode}`,
-      details
+      details,
+      diffMs
     );
   },
   {
@@ -128,13 +134,18 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
             name: handler.getName(details),
             type: handler.getType(),
             requestId: details.requestId,
+            startTimeMs: details.timeStamp,
           };
 
           pageInsights.requests.push(requestInfo);
           updatePageInsights(pageInsights);
         });
+
+        break; // Exit the loop after handling the first matching handler
       }
     }
+
+    console.log(" --- start time " + details.requestId, details.timeStamp);
   },
   {
     urls: urlPatterns,
