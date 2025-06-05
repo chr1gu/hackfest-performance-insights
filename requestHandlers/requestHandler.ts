@@ -1,5 +1,8 @@
-import { get } from "http";
-import type { AkamaiInfo, IsoDurations } from "~shared/pageInsights";
+import type {
+  AkamaiInfo,
+  IsoDurations,
+  RequestType,
+} from "~shared/pageInsights";
 
 export function findServerTimingHeader(
   request: chrome.webRequest.WebResponseHeadersDetails,
@@ -130,6 +133,7 @@ export function getAkamaiInfo(
 
 export interface RequestHandler {
   canHandleRequest(request: chrome.webRequest.WebRequestDetails): boolean;
-  onBeforeSendHeaders(request: chrome.webRequest.WebRequestDetails): void;
+  getName(request: chrome.webRequest.WebRequestDetails): string;
+  getType(): RequestType;
   onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void;
 }

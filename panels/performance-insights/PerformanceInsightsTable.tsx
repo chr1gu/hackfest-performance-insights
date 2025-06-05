@@ -7,10 +7,7 @@ import { InfrastructureTags } from "./InfrastructureTags";
 import { RequestTag } from "./RequestTag";
 import { useMemo } from "react";
 import { usePageInsightsStorage } from "~shared/storage";
-import type {
-  CompletePageInsightRequest,
-  GraphQlGatewayHostSystem,
-} from "~shared/pageInsights";
+import type { GraphQlGatewayHostSystem } from "~shared/pageInsights";
 
 const thStyles: CSSProperties = {
   textAlign: "left",
@@ -75,9 +72,8 @@ export const PerformanceInsightsTable: FunctionComponent<
               let gatewayInvocations = 0;
               let subgraphInvocations = 0;
               let grapholithInvocations = 0;
-              if (request.completed) {
-                const hosts = (request as CompletePageInsightRequest).response
-                  .hosts;
+              if (request.response) {
+                const hosts = request.response.hosts;
                 for (const host of hosts) {
                   if (host.name === "GraphQL Gateway") {
                     gatewayInvocations++;
@@ -113,7 +109,7 @@ export const PerformanceInsightsTable: FunctionComponent<
                   <td style={tdStyles} width="auto">
                     {request.name}
                   </td>
-                  {!request.completed ? (
+                  {!request.response ? (
                     <>
                       <td style={tdStyles} width="auto" colSpan={2}>
                         Pending...

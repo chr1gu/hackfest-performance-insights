@@ -35,7 +35,7 @@ export const PerformanceInsightDetail: FunctionComponent<
   }
 
   let resourceLink: string | undefined;
-  if (request.type === "GraphQL" && request.completed) {
+  if (request.type === "GraphQL" && request.response) {
     const queryName = (
       request.response.hosts.find(
         (host) => host.type === "GraphQLGateway"
@@ -70,7 +70,7 @@ export const PerformanceInsightDetail: FunctionComponent<
           <DataDogLink href="yolo">Trace</DataDogLink>
         </span>
       </h2>
-      {(request.completed && <FlameGraph request={request} />) || (
+      {(request.response && <FlameGraph request={request} />) || (
         <p style={{ color: "gray" }}>
           No flame graph available for pending requests.
         </p>

@@ -3,11 +3,16 @@ import {
   pragmaHeaderValues,
   tracingHeaderKey,
 } from "./shared/constants";
-import { getTracingKey } from "~shared/storage";
+import {
+  getPageInsights,
+  getTracingKey,
+  updatePageInsights,
+} from "~shared/storage";
 import type { RequestHandler } from "~requestHandlers/requestHandler";
 import { GraphQLHandler } from "~requestHandlers/graphqlHandler";
 import { MainFrameHandler } from "~requestHandlers/mainFrameHandler";
 import { GrapholithHandler } from "~requestHandlers/grapholithHandler";
+import type { PageInsightRequest } from "~shared/pageInsights";
 
 const addDebugHeadersToRequests = async () => {
   const tracingKey = await getTracingKey();
@@ -84,20 +89,38 @@ const requestHandlers: RequestHandler[] = [
   new GrapholithHandler(),
 ];
 
+const urlPatterns = [
+  "https://*.galaxus.ch/*",
+  "https://*.galaxus.de/*",
+  "https://*.galaxus.at/*",
+  "https://*.galaxus.nl/*",
+  "https://*.galaxus.it/*",
+  "https://*.galaxus.be/*",
+  "https://*.digitec.ch/*",
+];
+
 chrome.webRequest.onCompleted.addListener(
   async (details) => {
     for (const handler of requestHandlers) {
       if (handler.canHandleRequest(details)) {
         handler.onCompleted(details);
+        break; // Exit the loop after handling the first matching handler
       }
     }
 
+    const now = Date.now();
+    const diffMs = Math.round(now - details.timeStamp); // difference in ms
+    console.log(" --- end time " + details.requestId, details.timeStamp);
+
     console.log(
       `Request completed: ${details.url} with status code ${details.statusCode}`,
-      details
+      details,
+      diffMs
     );
   },
-  { urls: ["https://www.galaxus.ch/*"] },
+  {
+    urls: urlPatterns,
+  },
   ["responseHeaders"]
 );
 
@@ -105,9 +128,26 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   (details) => {
     for (const handler of requestHandlers) {
       if (handler.canHandleRequest(details)) {
-        handler.onBeforeSendHeaders(details);
+        getPageInsights((pageInsights) => {
+          // Update the page insights with the GraphQL request
+          const requestInfo: PageInsightRequest = {
+            name: handler.getName(details),
+            type: handler.getType(),
+            requestId: details.requestId,
+            startTimeMs: details.timeStamp,
+          };
+
+          pageInsights.requests.push(requestInfo);
+          updatePageInsights(pageInsights);
+        });
+
+        break; // Exit the loop after handling the first matching handler
       }
     }
+
+    console.log(" --- start time " + details.requestId, details.timeStamp);
   },
-  { urls: ["https://www.galaxus.ch/*"] }
+  {
+    urls: urlPatterns,
+  }
 );

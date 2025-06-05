@@ -4,22 +4,24 @@ import type {
 } from "~node_modules/@types/react";
 import {
   GraphQlGatewayHostSystem,
-  type CompletePageInsightRequest,
   type GrapholithHostSystem,
   type HostSystem,
+  type PageInsightRequest,
 } from "~shared/pageInsights";
 import React from "react";
 import { colorMap, type Infrastructure } from "./colors";
 
 interface FlameGraphProps {
-  request: CompletePageInsightRequest;
+  request: PageInsightRequest;
 }
 
 export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
+  if (!request.response) {
+    return null;
+  }
+
   let baseOffset = request.response.akamaiInfo.edgeDuration;
   const totalDuration = request.response.totalDuration;
-
-  console.log(request.response.isoDuration);
 
   return (
     <table style={{ width: "100%", borderCollapse: "collapse" }}>

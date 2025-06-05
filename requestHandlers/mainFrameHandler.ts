@@ -1,4 +1,4 @@
-import { type PageInsightRequest } from "~shared/pageInsights";
+import { type RequestType } from "~shared/pageInsights";
 import {
   getAkamaiInfo,
   getIsoDurations,
@@ -13,27 +13,17 @@ export class MainFrameHandler implements RequestHandler {
     return request.type === "main_frame";
   }
 
-  onBeforeSendHeaders(request: chrome.webRequest.WebRequestDetails): void {
-    getPageInsights((pageInsights) => {
-      // Update the page insights with the GraphQL request
-      const requestInfo: PageInsightRequest = {
-        name: (() => {
-          try {
-            const url = new URL(request.url);
-            return url.pathname;
-          } catch (error) {
-            return "Document Request";
-          }
-        })(),
-        type: "Document",
-        requestId: request.requestId,
-        completed: false,
-      };
+  getName(request: chrome.webRequest.WebRequestDetails): string {
+    try {
+      const url = new URL(request.url);
+      return url.pathname;
+    } catch (error) {
+      return "Document Request";
+    }
+  }
 
-      pageInsights.requests = []; // Reset requests on reload
-      pageInsights.requests.push(requestInfo);
-      updatePageInsights(pageInsights);
-    });
+  getType(): RequestType {
+    return "Document";
   }
 
   onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
@@ -48,19 +38,17 @@ export class MainFrameHandler implements RequestHandler {
       if (requestInfo) {
         const akamaiInfo = getAkamaiInfo(request);
 
-        requestInfo.completed = true;
-        // This if statement is simply here as a lazy way to fix ts error
-        if (requestInfo.completed) {
-          var graphqlGateways = getGraphQlGatewaySystems(request);
-          const grapholiths = getGrapholithGatewaySystems(request);
+        var graphqlGateways = getGraphQlGatewaySystems(request);
+        const grapholiths = getGrapholithGatewaySystems(request);
 
-          requestInfo.response = {
-            totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-            akamaiInfo,
-            isoDuration: getIsoDurations(request),
-            hosts: [...graphqlGateways, ...grapholiths],
-          };
-        }
+        requestInfo.endTimeMs = request.timeStamp;
+        requestInfo.response = {
+          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+          akamaiInfo,
+          isoDuration: getIsoDurations(request),
+          hosts: [...graphqlGateways, ...grapholiths],
+        };
+
         updatePageInsights(pageInsights);
       }
     });

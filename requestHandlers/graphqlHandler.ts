@@ -1,10 +1,9 @@
 import {
   GraphQlGatewayHostSystem,
   SubGraphQuery,
-  type PageInsightRequest,
+  type RequestType,
 } from "~shared/pageInsights";
 import {
-  findServerTimingHeader,
   getAkamaiInfo,
   getIsoDurations,
   type RequestHandler,
@@ -109,18 +108,12 @@ export class GraphQLHandler implements RequestHandler {
     );
   }
 
-  onBeforeSendHeaders(request: chrome.webRequest.WebRequestDetails): void {
-    getPageInsights((pageInsights) => {
-      const requestInfo: PageInsightRequest = {
-        name: request.url.split("/").pop() || "GraphQL Request",
-        type: "GraphQL",
-        requestId: request.requestId,
-        completed: false,
-      };
+  getName(request: chrome.webRequest.WebRequestDetails): string {
+    return request.url.split("/").pop() || "GraphQL Request";
+  }
 
-      pageInsights.requests.push(requestInfo);
-      updatePageInsights(pageInsights);
-    });
+  getType(): RequestType {
+    return "GraphQL";
   }
 
   onCompleted(request: chrome.webRequest.WebResponseHeadersDetails): void {
@@ -132,16 +125,14 @@ export class GraphQLHandler implements RequestHandler {
       if (requestInfo) {
         const akamaiInfo = getAkamaiInfo(request);
 
-        requestInfo.completed = true;
-        // This if statement is simply here as a lazy way to fix ts error
-        if (requestInfo.completed) {
-          requestInfo.response = {
-            totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
-            akamaiInfo,
-            isoDuration: getIsoDurations(request),
-            hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
-          };
-        }
+        requestInfo.endTimeMs = request.timeStamp;
+
+        requestInfo.response = {
+          totalDuration: akamaiInfo.edgeDuration + akamaiInfo.originDuration,
+          akamaiInfo,
+          isoDuration: getIsoDurations(request),
+          hosts: getGraphQlGatewaySystems(request), // This can be populated with more detailed host information if needed
+        };
         updatePageInsights(pageInsights);
       }
     });

@@ -1,29 +1,17 @@
-import { Storage } from "@plasmohq/storage";
-
 export interface PageInsights {
   requests: PageInsightRequest[];
 }
 
 export type RequestType = "Document" | "GraphQL" | "Grapholith";
 
-export interface UncompletePageInsightRequest {
-  name: string;
+export interface PageInsightRequest {
   type: RequestType;
-  requestId: string;
-  completed: false;
-}
-
-export interface CompletePageInsightRequest {
   name: string;
-  type: RequestType;
   requestId: string;
-  completed: true;
-  response: PageInsightResponse;
+  startTimeMs: number;
+  endTimeMs?: number;
+  response?: PageInsightResponse;
 }
-
-export type PageInsightRequest =
-  | UncompletePageInsightRequest
-  | CompletePageInsightRequest;
 
 export interface IsoDurations {
   render: number;
@@ -35,8 +23,13 @@ export interface PageInsightResponse {
   totalDuration: number;
   akamaiInfo: AkamaiInfo;
   isoDuration: IsoDurations | null;
+
   hosts: HostSystem[];
 }
+
+export type HostSystemType = "GraphQLGateway" | "Grapholith";
+
+export interface AkamaiHostSystem {}
 
 export interface AkamaiInfo {
   edgeDuration: number;
@@ -44,8 +37,6 @@ export interface AkamaiInfo {
   cacheLocation: string | undefined;
   originDuration: number;
 }
-
-export type HostSystemType = "GraphQLGateway" | "Grapholith";
 
 export interface HostSystem {
   type: HostSystemType;
