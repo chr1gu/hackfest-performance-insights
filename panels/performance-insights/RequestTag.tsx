@@ -33,11 +33,11 @@ export const RequestTag: FunctionComponent<RequestTagProps> = ({ tag }) => {
         display: "inline-block",
         padding: "3px 8px",
         borderRadius: "20px",
-        backgroundColor: colorMap[tag].backgroundColor,
+        backgroundColor: colorMap[tag]?.backgroundColor,
         fontSize: "13px",
         letterSpacing: "0.25px",
-        color: colorMap[tag].color,
-        border: `1px solid ${colorMap[tag].borderColor}`,
+        color: colorMap[tag]?.color,
+        border: `1px solid ${colorMap[tag]?.borderColor}`,
       }}
     >
       {tag}
