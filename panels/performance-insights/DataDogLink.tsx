@@ -11,6 +11,7 @@ export const DataDogLink: FunctionComponent<DataDogLinkProps> = ({
 }) => (
   <a
     href={href}
+    target="_blank"
     style={{
       display: "inline-block",
       background: "#6331b6",
