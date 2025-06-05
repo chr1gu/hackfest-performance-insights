@@ -5,6 +5,7 @@ import type {
 import {
   GraphQlGatewayHostSystem,
   type CompletePageInsightRequest,
+  type GrapholithHostSystem,
   type HostSystem,
 } from "~shared/pageInsights";
 import React from "react";
@@ -45,17 +46,26 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
             />
           </td>
         </tr>
+        {request.response.isoDuration && (
+          <tr>
+            <th style={thStyles} colSpan={2}>
+              Isomorph
+            </th>
+            <td style={tdStyles}>
+              <TimeSpan
+                duration={request.response.isoDuration}
+                durationInPercent={
+                  (request.response.isoDuration / totalDuration) * 100
+                }
+                offset={(baseOffset / totalDuration) * 100}
+                type="Frontend"
+              />
+            </td>
+          </tr>
+        )}
         {request.response.hosts.map((host, index) => {
-          console.log("Host:", host);
-
-          const isGraphQlGateway = isGraphQlGatewayHostSystem(host);
-
-          if (!isGraphQlGateway) {
-            return null;
-          }
-
-          return (
-            <React.Fragment key={index}>
+          if (isGrapholithHostSystem(host)) {
+            return (
               <tr key={index}>
                 <th style={thStyles}>{host.queryName}</th>
                 <th style={thStyles}>{host.name}</th>
@@ -70,38 +80,56 @@ export const FlameGraph: FunctionComponent<FlameGraphProps> = ({ request }) => {
                   />
                 </td>
               </tr>
+            );
+          }
 
-              {isGraphQlGatewayHostSystem(host)
-                ? host.subGraphQueries
-                    ?.sort((a, b) => (a.offset || 0) - (b.offset || 0))
-                    .map((subQuery, subIndex) => {
-                      // Calculate the offset for sub-queries based on the base offset
-                      const subQueryOffset =
-                        ((baseOffset + (subQuery.offset || 0)) /
-                          totalDuration) *
-                        100;
+          if (isGraphQlGatewayHostSystem(host)) {
+            return (
+              <React.Fragment key={index}>
+                <tr key={index}>
+                  <th style={thStyles}>{host.queryName}</th>
+                  <th style={thStyles}>{host.name}</th>
+                  <td style={tdStyles}>
+                    <TimeSpan
+                      duration={host.duration || 0}
+                      durationInPercent={
+                        ((host.duration || 0) / totalDuration) * 100
+                      }
+                      offset={(baseOffset / totalDuration) * 100}
+                      type="Gateway"
+                    />
+                  </td>
+                </tr>
 
-                      return (
-                        <tr key={subIndex + " " + index}>
-                          <th style={thStyles}>{subQuery.queryName}</th>
-                          <th style={thStyles}>{subQuery.subGraphName}</th>
-                          <td style={tdStyles}>
-                            <TimeSpan
-                              key={subIndex}
-                              duration={subQuery.duration || 0}
-                              durationInPercent={
-                                ((subQuery.duration || 0) / totalDuration) * 100
-                              }
-                              offset={subQueryOffset}
-                              type="Subgraph"
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })
-                : null}
-            </React.Fragment>
-          );
+                {host.subGraphQueries
+                  ?.sort((a, b) => (a.offset || 0) - (b.offset || 0))
+                  .map((subQuery, subIndex) => {
+                    // Calculate the offset for sub-queries based on the base offset
+                    const subQueryOffset =
+                      ((baseOffset + (subQuery.offset || 0)) / totalDuration) *
+                      100;
+
+                    return (
+                      <tr key={subIndex + " " + index}>
+                        <th style={thStyles}>{subQuery.queryName}</th>
+                        <th style={thStyles}>{subQuery.subGraphName}</th>
+                        <td style={tdStyles}>
+                          <TimeSpan
+                            key={subIndex}
+                            duration={subQuery.duration || 0}
+                            durationInPercent={
+                              ((subQuery.duration || 0) / totalDuration) * 100
+                            }
+                            offset={subQueryOffset}
+                            type="Subgraph"
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </React.Fragment>
+            );
+          }
         })}
       </tbody>
     </table>
@@ -112,6 +140,12 @@ function isGraphQlGatewayHostSystem(
   host: HostSystem
 ): host is GraphQlGatewayHostSystem {
   return "subGraphQueries" in host;
+}
+
+function isGrapholithHostSystem(
+  host: HostSystem
+): host is GrapholithHostSystem {
+  return host.type === "Grapholith";
 }
 
 interface TimeSpanProps {
@@ -142,7 +176,6 @@ const TimeSpan: FunctionComponent<TimeSpanProps> = ({
         backgroundColor: colors.backgroundColor,
         float: "left",
         fontSize: "12px",
-        // color: colors.color,
         color: "black",
         lineHeight: "24px",
         borderRadius: "2px",

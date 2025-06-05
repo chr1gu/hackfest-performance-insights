@@ -27,8 +27,8 @@ export const colorMap: Record<
   },
   Grapholith: {
     color: "#fff",
-    backgroundColor: "#fa5252",
-    borderColor: "#fa5252",
+    backgroundColor: "#52e4fa",
+    borderColor: "#3177e0",
   },
   Subgraph: {
     color: "#fff",

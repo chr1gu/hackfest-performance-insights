@@ -58,7 +58,6 @@ export const PerformanceInsightDetail: FunctionComponent<
           <DataDogLink href="yolo">Trace</DataDogLink>
         </span>
       </h2>
-      <div></div>
       {(request.completed && <FlameGraph request={request} />) || (
         <p style={{ color: "gray" }}>
           No flame graph available for pending requests.
