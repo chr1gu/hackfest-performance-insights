@@ -24,6 +24,39 @@ yarn build
 
 This should create a production bundle for your extension, ready to be zipped and published to the stores.
 
-## Submit to the webstores
+# Server Timing Headers
 
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+The server timing headers are expected to be of the following format:
+
+\<name>;desc=\<description>;dur=\<durationMs>;offset=\<offsetMs>
+
+- Name: Name of the service
+- Description: Description - we use this to determine the hierarchy of the requests
+- DurationMs: Duration of the request in ms
+- OffsetMs: Optional - request start offset in ms relative to parent request
+
+## Supported server-timing header types
+
+### Akamai
+
+`edge; dur=14` Edge duration
+
+`origin; dur=96` Origin duration - normally the root parent
+
+### Iso
+
+`iso; desc=total; dur=77` Total duration of iso request - parent of render and getInitialProps
+
+`iso; desc=getInitialProps; dur=27` GetInitialProps duration - parent of data fetching requests
+
+`iso; desc=render; dur=50` Render duration - happens after GetInitialProps
+
+### Supergraph
+
+`dg-trace-gql-gateway; desc=<query-name>; dur=18` GraphQL Gateway request - total duration. Description is the query name
+
+`dg-trace-gql-subgraph_<subgraph-name>; desc=<query-name>; dur=4; offset=14` Subgraph Request. Query name matches gateway request and is used to determine the parrent name.
+
+### Grapholith
+
+`dg-trace-gql-grapholith;description=<query-name>;dur=2` Grapholith request
