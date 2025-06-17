@@ -6,25 +6,25 @@ These additional information are then displayed in the devtools.
 
 ## Pragma Headers
 
-| Pragma                    | Response                                                                          |
-| ------------------------- | --------------------------------------------------------------------------------- |
-| `dg-trace-gql-gateway`    | Add server-timing for the GraphQL Gateway request                                 |
-| `dg-trace-gql-subgraph`   | Add server-timing for each Gubgraph request                                       |
-| `dg-trace-gql-grapholith` | Add server-timing for each Grapholith request                                     |
-| `dg-trace-frontend`       | Add server-timing headers for the iso request (total, getInitialProps and render) |
-| `dg-trace-authentication` | Add additional response headers for the token-refresh requests                    |
-| `dg-akamai-bc`            | Add server-timing headers from Akamai (edge, origin)                              |
+| Pragma              | Response                                                                          |
+| ------------------- | --------------------------------------------------------------------------------- |
+| `dg-gql`            | Add server-timing for all GraphQL Gateway requests                                |
+| `dg-gql-subgraph`   | Add server-timing for all Subgraph requests                                       |
+| `dg-grapholith`     | Add server-timing for all Grapholith requests                                     |
+| `dg-frontend`       | Add server-timing headers for the iso request (total, getInitialProps and render) |
+| `dg-authentication` | Add additional response headers for the token-refresh requests                    |
+| `dg-akamai-bc`      | Add server-timing headers from Akamai (edge, origin)                              |
 
 ## Server Timing Headers
 
 The server timing headers are expected to be of the following format:
 
-\<name>;desc=\<description>;dur=\<durationMs>;offset=\<offsetMs>
+`<name>; desc=<description>; dur=<durationMs>; offset=<offsetMs>`
 
-- Name: Name of the service
-- Description: Description - we use this to determine the hierarchy of the requests
-- DurationMs: Duration of the request in ms
-- OffsetMs: Optional - request start offset in ms relative to parent request
+- `name`: Name of the service
+- `description`: Description - we use this to determine the hierarchy of graphql requests
+- `durationMs`: Duration of the request in ms
+- `offsetMs`: Optional - request start offset in ms relative to parent request
 
 The following types of server-timing headers are currently picked up and displayed
 
@@ -37,21 +37,21 @@ The following types of server-timing headers are currently picked up and display
 
 ### Iso
 
-| Example                             | Description                                                          |
-| ----------------------------------- | -------------------------------------------------------------------- |
-| `iso; desc=total; dur=77`           | Total duration of iso request - parent of render and getInitialProps |
-| `iso; desc=getInitialProps; dur=27` | GetInitialProps duration - parent of data fetching requests          |
-| `iso; desc=render; dur=50`          | Render duration - happens after GetInitialProps                      |
+| Example                                       | Description                                                          |
+| --------------------------------------------- | -------------------------------------------------------------------- |
+| `iso; desc=total; dur=77`                     | Total duration of iso request - parent of render and getInitialProps |
+| `iso; desc=getInitialProps; dur=27; offset=2` | GetInitialProps duration - parent of data fetching requests          |
+| `iso; desc=render; dur=50; offset=31`         | Render duration - happens after GetInitialProps                      |
 
 ### Supergraph
 
-| Example                                                                      | Description                                                                                    |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `dg-trace-gql-gateway; desc=<query-name>; dur=18`                            | GraphQL Gateway request - total duration. Description is the query name                        |
-| `dg-trace-gql-subgraph_<subgraph-name>; desc=<query-name>; dur=4; offset=14` | Subgraph Request. Query name matches gateway request and is used to determine the parent name. |
+| Example                                                    | Description                                                                                    |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `gql; desc=<query-name>; dur=18; offset=1`                 | GraphQL Gateway request - total duration. Description is the query name                        |
+| `gql_<subgraph-name>; desc=<query-name>; dur=4; offset=14` | Subgraph Request. Query name matches gateway request and is used to determine the parent name. |
 
 ### Grapholith
 
 | Example                                                  | Description        |
 | -------------------------------------------------------- | ------------------ |
-| `dg-trace-gql-grapholith;description=<query-name>;dur=2` | Grapholith request |
+| `grapholith; description=<query-name>; dur=2; offset=12` | Grapholith request |
